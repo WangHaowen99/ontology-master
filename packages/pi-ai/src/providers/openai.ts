@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatOptions, LLMProvider, StreamChunk, ProviderConfig } from './types.js';
+import type { ChatMessage, ChatOptions, LLMProvider, StreamChunk, ProviderConfig } from '../types.js';
 import OpenAI from 'openai';
 
 /**

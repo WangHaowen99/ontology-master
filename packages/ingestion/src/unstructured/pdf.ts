@@ -22,9 +22,9 @@ export class PdfIngester implements Ingester {
       if (!pageText) continue;
 
       // Split into logical segments by double newlines
-      const paragraphs = pageText.split(/\n\s*\n/).filter((p) => p.trim().length > 20);
+      const paragraphs = pageText.split(/\n\s*\n/).filter((p: string) => p.trim().length > 20);
       for (const paragraph of paragraphs) {
-        const lines = paragraph.split('\n').map((l) => l.trim()).filter(Boolean);
+        const lines = paragraph.split('\n').map((l: string) => l.trim()).filter(Boolean);
         // First short line might be a heading
         const heading = lines[0] && lines[0].length < 80 && lines.length > 1 ? lines[0] : undefined;
         const content = heading ? lines.slice(1).join(' ') : lines.join(' ');

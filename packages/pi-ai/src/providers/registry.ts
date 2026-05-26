@@ -1,6 +1,6 @@
-import type { LLMProvider, ProviderConfig, ProviderRegistry as IProviderRegistry } from './types.js';
-import { OpenAIProvider } from './providers/openai.js';
-import { AnthropicProvider } from './providers/anthropic.js';
+import type { LLMProvider, ProviderConfig, ProviderRegistry as IProviderRegistry } from '../types.js';
+import { OpenAIProvider } from './openai.js';
+import { AnthropicProvider } from './anthropic.js';
 
 type ProviderFactory = (config: ProviderConfig) => LLMProvider;
 

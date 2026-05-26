@@ -15,45 +15,37 @@ export class XmlIngester implements Ingester {
     onProgress?.('analyzing', 50, 'Analyzing XML structure');
 
     const entities: ExtractedEntity[] = [];
-    const root = $.root().children().first();
 
-    extractXmlEntities($, root, entities, 0);
+    // Walk all elements and extract entity-like nodes
+    $('*').each(function () {
+      const el = $(this);
+      const tagName = (this as { tagName?: string }).tagName?.toLowerCase() ?? '';
+      if (!tagName) return;
+
+      const properties: Record<string, string> = {};
+      const attrs = (this as { attribs?: Record<string, string> }).attribs ?? {};
+      for (const [key, value] of Object.entries(attrs)) {
+        properties[`@${key}`] = value;
+      }
+
+      // Get direct text content (not from children)
+      const directText = el.contents().filter(function () {
+        return (this as { type?: string }).type === 'text';
+      }).text().trim();
+      if (directText) {
+        properties['#text'] = directText;
+      }
+
+      if (Object.keys(properties).length > 0) {
+        entities.push({
+          name: attrs.name || attrs.id || tagName,
+          type: tagName,
+          properties,
+        });
+      }
+    });
 
     onProgress?.('done', 100, `Extracted ${entities.length} entities from XML`);
     return { source: source.name, type: 'semi-structured', entities };
   }
-}
-
-function extractXmlEntities(
-  $: cheerio.CheerioAPI,
-  el: cheerio.Cheerio<cheerio.Element>,
-  entities: ExtractedEntity[],
-  depth: number,
-): void {
-  if (depth > 5) return;
-
-  const tagName = el.prop('tagName') as string;
-  if (!tagName) return;
-
-  const properties: Record<string, string> = {};
-  for (const [key, value] of Object.entries(el.attr() ?? {})) {
-    properties[`@${key}`] = value;
-  }
-
-  const textContent = el.children().not('*').text().trim();
-  if (textContent) {
-    properties['#text'] = textContent;
-  }
-
-  if (Object.keys(properties).length > 0 || el.children('*').length > 0) {
-    entities.push({
-      name: el.attr('name') || el.attr('id') || tagName,
-      type: tagName,
-      properties,
-    });
-  }
-
-  el.children('*').each(function () {
-    extractXmlEntities($, $(this), entities, depth + 1);
-  });
 }

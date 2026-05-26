@@ -20,7 +20,7 @@ export type ProgressCallback = (phase: string, percent: number, message: string)
 // ─── Ingester Interface ───
 
 export interface Ingester {
-  readonly supportedTypes: DataSourceType[];
+  readonly supportedTypes: readonly DataSourceType[];
   ingest(source: DataSource, onProgress?: ProgressCallback): Promise<IngestedSchema>;
 }
 
