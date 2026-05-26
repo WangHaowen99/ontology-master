@@ -1,0 +1,24 @@
+{
+  "name": "ontology-master-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "本体建模大师 Desktop - AI-driven OWL ontology modeling workbench",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @om/desktop dev",
+    "build": "pnpm -r build",
+    "dev:python": "cd python && uvicorn om_reasoner.app:app --reload --port 8765",
+    "test": "pnpm -r test",
+    "lint": "eslint . --ext .ts,.tsx",
+    "clean": "pnpm -r exec rm -rf dist node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "eslint": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.9"
+}

@@ -1,0 +1,30 @@
+{
+  "organization": {
+    "name": "示例科技有限公司",
+    "founded": "2015-01-01",
+    "departments": [
+      {
+        "name": "技术部",
+        "manager": "李四",
+        "projects": [
+          {"name": "本体建模大师", "status": "active", "budget": 500000},
+          {"name": "知识图谱平台", "status": "active", "budget": 800000}
+        ]
+      },
+      {
+        "name": "产品部",
+        "manager": "王五",
+        "projects": [
+          {"name": "用户增长", "status": "active", "budget": 300000}
+        ]
+      },
+      {
+        "name": "市场部",
+        "manager": "赵六",
+        "projects": [
+          {"name": "品牌推广", "status": "completed", "budget": 200000}
+        ]
+      }
+    ]
+  }
+}

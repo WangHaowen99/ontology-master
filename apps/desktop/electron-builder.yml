@@ -1,0 +1,28 @@
+appId: com.ontology-master.desktop
+productName: 本体建模大师
+directories:
+  buildResources: build
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron-vite.config.*'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+mac:
+  target:
+    - dmg
+  artifactName: ${name}-${version}-${arch}.${ext}
+win:
+  target:
+    - nsis
+  artifactName: ${name}-${version}-${arch}.${ext}
+linux:
+  target:
+    - AppImage
+    - deb
+  artifactName: ${name}-${version}-${arch}.${ext}
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/pi-ai" },
+    { "path": "../../packages/pi-agent" },
+    { "path": "../../packages/ontology" },
+    { "path": "../../packages/ingestion" },
+    { "path": "../../packages/modeler" },
+    { "path": "../../packages/store" },
+    { "path": "../../packages/ui" }
+  ]
+}

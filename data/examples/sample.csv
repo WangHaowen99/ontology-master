@@ -1,0 +1,9 @@
+id,name,email,department,role,hire_date
+1,张三,zhangsan@example.com,技术部,高级工程师,2020-03-15
+2,李四,lisi@example.com,技术部,架构师,2019-06-20
+3,王五,wangwu@example.com,产品部,产品经理,2021-01-10
+4,赵六,zhaoliu@example.com,市场部,市场总监,2018-11-05
+5,孙七,sunqi@example.com,技术部,前端工程师,2022-07-01
+6,周八,zhouba@example.com,人事部,HR经理,2020-09-12
+7,吴九,wujiu@example.com,技术部,后端工程师,2021-04-18
+8,郑十,zhengshi@example.com,财务部,财务主管,2019-02-28

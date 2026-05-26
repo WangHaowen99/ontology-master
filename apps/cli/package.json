@@ -1,0 +1,29 @@
+{
+  "name": "@om/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": { "om": "dist/index.js" },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@om/ontology": "workspace:*",
+    "@om/pi-ai": "workspace:*",
+    "@om/pi-agent": "workspace:*",
+    "@om/ingestion": "workspace:*",
+    "@om/modeler": "workspace:*",
+    "@om/store": "workspace:*",
+    "commander": "^13.0.0",
+    "chalk": "^5.4.0",
+    "ora": "^8.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
