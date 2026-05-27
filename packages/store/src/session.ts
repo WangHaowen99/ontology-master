@@ -1,10 +1,16 @@
 import type Database from 'better-sqlite3';
-import type { AgentMessage } from '@om/pi-agent';
+
+/** Simplified message format — no pi-agent dependency */
+export interface StoredMessage {
+  role: 'user' | 'assistant' | 'system' | 'tool';
+  content: string;
+  timestamp: number;
+}
 
 export interface AgentSession {
   id: string;
   projectId: string;
-  messages: AgentMessage[];
+  messages: StoredMessage[];
   createdAt: string;
   updatedAt: string;
 }
@@ -30,13 +36,13 @@ export class SessionRepository {
     return {
       id: row.id as string,
       projectId: row.project_id as string,
-      messages: JSON.parse(row.messages_json as string) as AgentMessage[],
+      messages: JSON.parse(row.messages_json as string) as StoredMessage[],
       createdAt: row.created_at as string,
       updatedAt: row.updated_at as string,
     };
   }
 
-  updateMessages(id: string, messages: AgentMessage[]): void {
+  updateMessages(id: string, messages: StoredMessage[]): void {
     this.db.prepare(
       `UPDATE agent_sessions SET messages_json = ?, updated_at = datetime('now') WHERE id = ?`
     ).run(JSON.stringify(messages), id);

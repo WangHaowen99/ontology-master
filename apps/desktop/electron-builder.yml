@@ -1,28 +1,68 @@
-appId: com.ontology-master.desktop
-productName: 本体建模大师
+appId: com.pi-gui.desktop
+productName: pi-gui
+copyright: Copyright 2026 Matthew Lam
+electronVersion: 34.5.8
+
 directories:
-  buildResources: build
+  output: release
+  buildResources: resources
+
 files:
-  - '!**/.vscode/*'
-  - '!src/*'
-  - '!electron-vite.config.*'
-  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
-  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - out/**/*
+  - package.json
+
+extraResources:
+  - from: resources/icon.png
+    to: icon.png
+
+asar: true
+asarUnpack:
+  - "**/*.node"
+  - "**/*.wasm"
+  - "**/node_modules/node-pty/**/*"
+  - "**/node_modules/.pnpm/node-pty*/node_modules/node-pty/**/*"
+
+artifactName: ${productName}-${version}-${arch}.${ext}
+
 mac:
+  category: public.app-category.developer-tools
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: resources/entitlements.mac.plist
+  entitlementsInherit: resources/entitlements.mac.inherit.plist
+  notarize: true
   target:
-    - dmg
-  artifactName: ${name}-${version}-${arch}.${ext}
-win:
-  target:
-    - nsis
-  artifactName: ${name}-${version}-${arch}.${ext}
+    - target: dmg
+      arch: arm64
+    - target: zip
+      arch: arm64
+  darkModeSupport: true
+  extraFiles:
+    - from: build/native/pi-gui-notification-status-helper
+      to: MacOS/pi-gui-notification-status-helper
+
 linux:
+  category: Development
+  executableName: pi-gui
   target:
-    - AppImage
-    - deb
-  artifactName: ${name}-${version}-${arch}.${ext}
-nsis:
-  artifactName: ${name}-${version}-setup.${ext}
-  shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
+    - target: AppImage
+
+toolsets:
+  appimage: "1.0.2"
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+  window:
+    width: 540
+    height: 380
+
+publish:
+  provider: github
+  owner: minghinmatthewlam
+  repo: pi-gui

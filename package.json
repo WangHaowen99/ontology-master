@@ -1,24 +1,29 @@
 {
-  "name": "ontology-master-desktop",
-  "version": "0.1.0",
+  "name": "ontology-master",
   "private": true,
-  "description": "本体建模大师 Desktop - AI-driven OWL ontology modeling workbench",
-  "type": "module",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "本体建模大师 Desktop — AI-driven OWL ontology modeling, powered by pi-gui",
+  "packageManager": "pnpm@10.25.0",
   "scripts": {
-    "dev": "pnpm --filter @om/desktop dev",
-    "build": "pnpm -r build",
+    "dev": "pnpm --filter @pi-gui/desktop dev",
+    "build": "pnpm -r --if-present build",
+    "build:ontology": "pnpm --filter @om/ontology build && pnpm --filter @om/ingestion build && pnpm --filter @om/store build && pnpm --filter @om/modeler build",
+    "build:gui": "pnpm --filter @pi-gui/session-driver build && pnpm --filter @pi-gui/catalogs build && pnpm --filter @pi-gui/pi-sdk-driver build",
+    "typecheck": "pnpm build:gui && pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "test:python": "cd python && python3 -m pytest tests/ -v",
     "dev:python": "cd python && uvicorn om_reasoner.app:app --reload --port 8765",
-    "test": "pnpm -r test",
-    "lint": "eslint . --ext .ts,.tsx",
-    "clean": "pnpm -r exec rm -rf dist node_modules"
+    "e2e": "playwright test",
+    "om:import": "tsx apps/cli/src/index.ts import",
+    "om:validate": "tsx apps/cli/src/index.ts validate",
+    "package:linux": "pnpm --filter @pi-gui/desktop run package:linux"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
-    "eslint": "^9.0.0"
-  },
-  "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
-  },
-  "packageManager": "pnpm@9.15.9"
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3"
+  }
 }

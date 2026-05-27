@@ -1,17 +1,22 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": ["../../tsconfig.base.json", "./tsconfig.paths.json"],
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src"
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": false,
+    "isolatedModules": true,
+    "composite": false,
+    "declaration": false,
+    "sourceMap": false,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "vite/client"]
   },
   "include": ["src"],
-  "references": [
-    { "path": "../../packages/pi-ai" },
-    { "path": "../../packages/pi-agent" },
-    { "path": "../../packages/ontology" },
-    { "path": "../../packages/ingestion" },
-    { "path": "../../packages/modeler" },
-    { "path": "../../packages/store" },
-    { "path": "../../packages/ui" }
-  ]
+  "exclude": ["electron", "dist", "dist-electron", "out", "node_modules"]
 }

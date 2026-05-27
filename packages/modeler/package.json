@@ -7,18 +7,15 @@
   "types": "dist/index.d.ts",
   "exports": { ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" } },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "vitest run"
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc --watch"
   },
   "dependencies": {
-    "@om/pi-ai": "workspace:*",
-    "@om/pi-agent": "workspace:*",
     "@om/ontology": "workspace:*",
-    "@om/ingestion": "workspace:*"
+    "@om/ingestion": "workspace:*",
+    "openai": "^4.70.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "typescript": "^5.9.3"
   }
 }

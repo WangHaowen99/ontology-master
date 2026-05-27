@@ -4,10 +4,9 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
 import { createPipeline, detectSourceType } from '@om/ingestion';
-import { ModelingPipeline } from '@om/modeler';
 import { createOntology, validateOntology, OntologyOperations } from '@om/ontology';
 import type { OntologyModel, IngestedSchema } from '@om/ontology';
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { resolve, basename } from 'node:path';
 
 const program = new Command();
@@ -24,11 +23,8 @@ program
   .description('Import data source and generate ontology model')
   .option('-e, --export <format>', 'Export format: turtle, rdfxml, owlxml, jsonld', 'turtle')
   .option('-o, --output <path>', 'Output file path')
-  .option('-p, --provider <name>', 'LLM provider: deepseek, openai, anthropic', 'deepseek')
-  .option('-m, --model <name>', 'LLM model name')
-  .option('--api-key <key>', 'API key (or set via env: DEEPSEEK_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY)')
   .option('--language <lang>', 'Language: zh, en', 'zh')
-  .action(async (source: string, options) => {
+  .action(async (source: string, options: Record<string, string>) => {
     const spinner = ora();
 
     try {
@@ -41,7 +37,7 @@ program
 
       const schema = await pipeline.ingest(
         { type, path: sourcePath, name },
-        (phase, percent, message) => {
+        (_phase, percent, message) => {
           spinner.text = `${message} (${percent}%)`;
         }
       );
@@ -65,36 +61,7 @@ program
       const prefix = name.replace(/\.\w+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
       const model = createOntology(`http://example.org/${prefix}`, prefix, { title: prefix });
 
-      // Step 3: Run AI modeling pipeline
-      const apiKey = options.apiKey
-        || process.env.DEEPSEEK_API_KEY
-        || process.env.OPENAI_API_KEY
-        || process.env.ANTHROPIC_API_KEY
-        || '';
-
-      if (!apiKey) {
-        console.log(chalk.yellow('  Warning: No API key provided. Set DEEPSEEK_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY env variable.'));
-        console.log(chalk.yellow('  Skipping AI modeling. Use --api-key or set env variable.'));
-      } else {
-        spinner.start('Running AI modeling pipeline...');
-
-        const modeler = new ModelingPipeline({
-          provider: options.provider,
-          providerConfig: { apiKey },
-          model: options.model,
-          language: options.language,
-        });
-
-        for await (const event of modeler.runFull(model, [schema])) {
-          if (event.type === 'text_delta') {
-            spinner.text = `[${event.phase ?? ''}] ${event.content?.slice(0, 50) ?? ''}`;
-          }
-        }
-
-        spinner.succeed('AI modeling complete');
-      }
-
-      // Step 4: Validate
+      // Step 3: Validate
       const validation = validateOntology(model);
       if (validation.valid) {
         console.log(chalk.green('  ✓ Ontology validation passed'));
@@ -103,11 +70,8 @@ program
           console.log(chalk.red(`  ✗ ${err.message}`));
         }
       }
-      for (const warn of validation.warnings) {
-        console.log(chalk.yellow(`  ⚠ ${warn.message}`));
-      }
 
-      // Step 5: Export
+      // Step 4: Export
       const ops = new OntologyOperations(model);
       const stats = ops.stats();
       console.log(chalk.cyan(`\n  Ontology: ${model.metadata.title}`));
@@ -116,22 +80,17 @@ program
       const ext = options.export === 'turtle' ? 'ttl' : options.export === 'jsonld' ? 'jsonld' : 'owl';
       const outputPath = options.output ?? `${prefix}.${ext}`;
 
-      // Use Python backend for export if available, otherwise use simple TTL generator
-      if (apiKey) {
-        try {
-          const response = await fetch('http://localhost:8765/api/export/ontology', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model, format: options.export }),
-          });
-          const content = await response.text();
-          writeFileSync(outputPath, content, 'utf-8');
-        } catch {
-          console.log(chalk.yellow('  Python backend not available, using built-in TTL generator'));
-          const content = generateSimpleTTL(model);
-          writeFileSync(outputPath, content, 'utf-8');
-        }
-      } else {
+      // Try Python backend first, fallback to built-in TTL generator
+      try {
+        const response = await fetch('http://localhost:8765/api/export/ontology', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model, format: options.export }),
+        });
+        const content = await response.text();
+        writeFileSync(outputPath, content, 'utf-8');
+      } catch {
+        console.log(chalk.yellow('  Python backend not available, using built-in TTL generator'));
         const content = generateSimpleTTL(model);
         writeFileSync(outputPath, content, 'utf-8');
       }
@@ -150,7 +109,6 @@ program
   .description('Validate an existing ontology model JSON file')
   .action(async (file: string) => {
     try {
-      const { readFileSync } = await import('node:fs');
       const content = readFileSync(resolve(file), 'utf-8');
       const model = JSON.parse(content) as OntologyModel;
       const result = validateOntology(model);
@@ -172,7 +130,7 @@ program
     }
   });
 
-// ─── Simple TTL generator (fallback when Python backend unavailable) ───
+// ─── Simple TTL generator (fallback) ───
 
 function generateSimpleTTL(model: OntologyModel): string {
   const lines: string[] = [
