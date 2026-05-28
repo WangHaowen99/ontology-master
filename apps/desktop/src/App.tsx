@@ -1940,10 +1940,13 @@ export default function App() {
     return (
       <DataImportView
         sources={ontology.state.sources}
+        selectedSourceIds={ontology.state.selectedSourceIds}
         onImportFiles={ontology.importFiles}
         onConnectDatabase={ontology.connectDatabase}
         onRemoveSource={ontology.removeSource}
-        onSendToModeler={() => {
+        onSelectSources={ontology.selectSources}
+        onSendToModeler={(ids) => {
+          ontology.sendToModeler(ids);
           setActiveView("ontology-modeler");
         }}
       />
@@ -1957,12 +1960,20 @@ export default function App() {
         properties={ontology.state.properties}
         stats={ontology.state.stats}
         messages={ontology.state.messages}
+        sources={ontology.state.sources}
+        selectedSourceIds={ontology.state.selectedSourceIds}
+        phaseRuns={ontology.state.phaseRuns}
+        modelingStatus={ontology.state.modelingStatus}
+        activePhase={ontology.state.activePhase}
+        lastError={ontology.state.lastError}
         isAgentRunning={ontology.state.isAgentRunning}
         onSendMessage={ontology.sendMessage}
         onRunPipeline={ontology.runPipeline}
         onSelectClass={ontology.selectClass}
         onCreateClass={ontology.createClass}
         onDeleteClass={ontology.deleteClass}
+        onGoToImport={() => setActiveView("data-import")}
+        onGoToExport={() => setActiveView("owl-export")}
       />
     );
   }
@@ -1979,6 +1990,7 @@ export default function App() {
         isValidating={ontology.state.isValidating}
         isReasoning={ontology.state.isReasoning}
         exportPreview={ontology.state.exportPreview}
+        onGoToModeler={() => setActiveView("ontology-modeler")}
       />
     );
   }

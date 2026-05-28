@@ -145,7 +145,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onSetActiveView("data-import")}
           >
             <DataImportIcon />
-            <span>Import Data</span>
+            <span>数据导入</span>
           </button>
           <button
             className={`sidebar__nav-item ${activeView === "ontology-modeler" ? "sidebar__nav-item--active" : ""}`}
@@ -153,7 +153,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onSetActiveView("ontology-modeler")}
           >
             <OntologyModelerIcon />
-            <span>Ontology Modeler</span>
+            <span>本体建模</span>
           </button>
           <button
             className={`sidebar__nav-item ${activeView === "owl-export" ? "sidebar__nav-item--active" : ""}`}
@@ -161,7 +161,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onSetActiveView("owl-export")}
           >
             <OwlExportIcon />
-            <span>OWL Export</span>
+            <span>OWL 导出</span>
           </button>
           <button
             className="sidebar__nav-item"

@@ -22,6 +22,7 @@
     "verify:packaged-runtime-deps": "pnpm run verify:runtime-model-registry && node scripts/assert-packaged-runtime-deps.mjs",
     "verify:packaged-runtime-deps:linux": "pnpm run verify:runtime-model-registry && cross-env PI_APP_PACKAGE_PLATFORM=linux node scripts/assert-packaged-runtime-deps.mjs",
     "test": "pnpm run test:e2e",
+    "test:ontology-ui": "vitest run --config vitest.config.ts",
     "test:e2e": "pnpm run test:e2e:core",
     "test:e2e:all": "pnpm run test:e2e:core && pnpm run test:e2e:live && pnpm run test:e2e:native",
     "test:e2e:ci:mac": "pnpm run test:e2e:core",
@@ -118,6 +119,7 @@
     "electron-vite": "^5.0.0",
     "playwright": "^1.58.2",
     "vite": "^6.2.0",
+    "vitest": "^3.0.0",
     "vite-tsconfig-paths": "^6.1.1"
   }
 }

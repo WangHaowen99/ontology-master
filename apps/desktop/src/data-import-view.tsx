@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export type DataSourceKind =
   | "csv"
@@ -38,9 +38,11 @@ interface DatabaseConnectionForm {
 
 interface DataImportViewProps {
   readonly sources: readonly ImportedSource[];
+  readonly selectedSourceIds: readonly string[];
   readonly onImportFiles: (files: FileList) => void;
   readonly onConnectDatabase: (form: DatabaseConnectionForm) => void;
   readonly onRemoveSource: (id: string) => void;
+  readonly onSelectSources: (ids: readonly string[]) => void;
   readonly onSendToModeler: (ids: readonly string[]) => void;
 }
 
@@ -75,6 +77,12 @@ const SOURCE_KIND_LABELS: Record<DataSourceKind, string> = {
   mysql: "MySQL",
 };
 
+const SOURCE_STATUS_LABELS: Record<ImportedSource["status"], string> = {
+  ready: "已就绪",
+  processing: "处理中",
+  failed: "失败",
+};
+
 const EMPTY_DB_FORM: DatabaseConnectionForm = {
   kind: "postgres",
   host: "localhost",
@@ -86,12 +94,24 @@ const EMPTY_DB_FORM: DatabaseConnectionForm = {
 };
 
 export function DataImportView(props: DataImportViewProps) {
-  const { sources, onImportFiles, onConnectDatabase, onRemoveSource, onSendToModeler } = props;
+  const {
+    sources,
+    selectedSourceIds,
+    onImportFiles,
+    onConnectDatabase,
+    onRemoveSource,
+    onSelectSources,
+    onSendToModeler,
+  } = props;
   const [mode, setMode] = useState<"files" | "database">("files");
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set(selectedSourceIds));
   const [dbForm, setDbForm] = useState<DatabaseConnectionForm>(EMPTY_DB_FORM);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setSelectedIds(new Set(selectedSourceIds));
+  }, [selectedSourceIds]);
 
   const handleDrop = useCallback(
     (event: React.DragEvent<HTMLDivElement>) => {
@@ -113,41 +133,51 @@ export function DataImportView(props: DataImportViewProps) {
     setIsDragOver(false);
   }, []);
 
-  const toggleSelected = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
+  const toggleSelected = (source: ImportedSource) => {
+    if (source.status !== "ready") {
+      return;
+    }
+    const next = new Set(selectedIds);
+    if (next.has(source.id)) {
+      next.delete(source.id);
+    } else {
+      next.add(source.id);
+    }
+    const nextIds = Array.from(next);
+    setSelectedIds(next);
+    onSelectSources(nextIds);
   };
 
   const fileSources = sources.filter((s) => s.kind !== "postgres" && s.kind !== "mysql" && s.kind !== "sqlite");
   const dbSources = sources.filter((s) => s.kind === "postgres" || s.kind === "mysql" || s.kind === "sqlite");
   const visibleSources = mode === "files" ? fileSources : dbSources;
+  const sendableSourceIds = useMemo(
+    () => getSendableSourceIds(sources, Array.from(selectedIds)),
+    [selectedIds, sources],
+  );
+  const canConnectDatabase = dbForm.kind === "sqlite"
+    ? dbForm.filePath.trim().length > 0
+    : dbForm.host.trim().length > 0 && dbForm.port.trim().length > 0 && dbForm.database.trim().length > 0;
 
   return (
     <section className="canvas">
       <div className="conversation data-import-view">
         <header className="view-header">
           <div>
-            <div className="chat-header__eyebrow">Data Import</div>
-            <h1 className="view-header__title">Import Data Sources</h1>
+            <div className="chat-header__eyebrow">数据导入</div>
+            <h1 className="view-header__title">导入数据源</h1>
             <p className="view-header__body">
-              Ingest structured, semi-structured, and unstructured data to inform ontology design.
+              接入结构化、半结构化和非结构化数据，作为 pi agent 本体建模的上下文。
             </p>
           </div>
           <div className="view-header__actions">
             <button
               className="button button--primary"
               type="button"
-              disabled={selectedIds.size === 0}
-              onClick={() => onSendToModeler(Array.from(selectedIds))}
+              disabled={sendableSourceIds.length === 0}
+              onClick={() => onSendToModeler(sendableSourceIds)}
             >
-              Send to Modeler ({selectedIds.size})
+              发送到建模（{sendableSourceIds.length}）
             </button>
           </div>
         </header>
@@ -159,14 +189,14 @@ export function DataImportView(props: DataImportViewProps) {
               type="button"
               onClick={() => setMode("files")}
             >
-              File Sources
+              文件数据源
             </button>
             <button
               className={`data-import-tab ${mode === "database" ? "data-import-tab--active" : ""}`}
               type="button"
               onClick={() => setMode("database")}
             >
-              Database Connections
+              数据库连接
             </button>
           </div>
         </div>
@@ -190,14 +220,14 @@ export function DataImportView(props: DataImportViewProps) {
                   />
                 </svg>
               </div>
-              <h2>Drop files here</h2>
+              <h2>拖入文件</h2>
               <p>CSV, Excel, JSON, XML, YAML, PDF, DOCX, Markdown</p>
               <button
                 className="button button--secondary"
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
               >
-                Browse files
+                选择文件
               </button>
               <input
                 ref={fileInputRef}
@@ -218,7 +248,7 @@ export function DataImportView(props: DataImportViewProps) {
           <div className="data-import-db-form">
             <div className="db-form__row">
               <label className="db-form__field">
-                <span>Database type</span>
+                <span>数据库类型</span>
                 <select
                   value={dbForm.kind}
                   onChange={(e) => {
@@ -238,7 +268,7 @@ export function DataImportView(props: DataImportViewProps) {
             </div>
             {dbForm.kind === "sqlite" ? (
               <label className="db-form__field">
-                <span>Database file path</span>
+                <span>数据库文件路径</span>
                 <input
                   type="text"
                   placeholder="/path/to/database.sqlite"
@@ -250,7 +280,7 @@ export function DataImportView(props: DataImportViewProps) {
               <>
                 <div className="db-form__row db-form__row--two-col">
                   <label className="db-form__field">
-                    <span>Host</span>
+                    <span>主机</span>
                     <input
                       type="text"
                       value={dbForm.host}
@@ -258,7 +288,7 @@ export function DataImportView(props: DataImportViewProps) {
                     />
                   </label>
                   <label className="db-form__field">
-                    <span>Port</span>
+                    <span>端口</span>
                     <input
                       type="text"
                       value={dbForm.port}
@@ -267,7 +297,7 @@ export function DataImportView(props: DataImportViewProps) {
                   </label>
                 </div>
                 <label className="db-form__field">
-                  <span>Database name</span>
+                  <span>数据库名</span>
                   <input
                     type="text"
                     value={dbForm.database}
@@ -276,7 +306,7 @@ export function DataImportView(props: DataImportViewProps) {
                 </label>
                 <div className="db-form__row db-form__row--two-col">
                   <label className="db-form__field">
-                    <span>Username</span>
+                    <span>用户名</span>
                     <input
                       type="text"
                       value={dbForm.username}
@@ -284,7 +314,7 @@ export function DataImportView(props: DataImportViewProps) {
                     />
                   </label>
                   <label className="db-form__field">
-                    <span>Password</span>
+                    <span>密码</span>
                     <input
                       type="password"
                       value={dbForm.password}
@@ -298,12 +328,13 @@ export function DataImportView(props: DataImportViewProps) {
               <button
                 className="button button--primary"
                 type="button"
+                disabled={!canConnectDatabase}
                 onClick={() => {
                   onConnectDatabase(dbForm);
                   setDbForm(EMPTY_DB_FORM);
                 }}
               >
-                Connect and ingest schema
+                连接并读取结构
               </button>
             </div>
           </div>
@@ -311,36 +342,41 @@ export function DataImportView(props: DataImportViewProps) {
 
         <div className="data-import-sources">
           <h3 className="data-import-sources__title">
-            Imported sources ({visibleSources.length})
+            已导入数据源（{visibleSources.length}）
           </h3>
           {visibleSources.length === 0 ? (
             <div className="empty-state">
-              <p>No {mode === "files" ? "file" : "database"} sources imported yet.</p>
+              <p>{mode === "files" ? "暂无文件数据源。" : "暂无数据库连接。"}</p>
             </div>
           ) : (
             <div className="data-import-source-list">
               {visibleSources.map((source) => (
                 <label
                   key={source.id}
-                  className={`data-import-source ${selectedIds.has(source.id) ? "data-import-source--selected" : ""}`}
+                  className={[
+                    "data-import-source",
+                    selectedIds.has(source.id) ? "data-import-source--selected" : "",
+                    source.status !== "ready" ? "data-import-source--disabled" : "",
+                  ].filter(Boolean).join(" ")}
                 >
                   <input
                     type="checkbox"
                     checked={selectedIds.has(source.id)}
-                    onChange={() => toggleSelected(source.id)}
+                    disabled={source.status !== "ready"}
+                    onChange={() => toggleSelected(source)}
                   />
                   <div className="data-import-source__info">
                     <div className="data-import-source__name">{source.name}</div>
                     <div className="data-import-source__meta">
                       <span className="data-import-source__kind">{SOURCE_KIND_LABELS[source.kind]}</span>
                       <span>{formatBytes(source.sizeBytes)}</span>
-                      {source.tableCount > 0 ? <span>{source.tableCount} tables</span> : null}
-                      {source.entityCount > 0 ? <span>{source.entityCount} entities</span> : null}
-                      {source.textSegmentCount > 0 ? <span>{source.textSegmentCount} segments</span> : null}
+                      {source.tableCount > 0 ? <span>{source.tableCount} 张表</span> : null}
+                      {source.entityCount > 0 ? <span>{source.entityCount} 个实体</span> : null}
+                      {source.textSegmentCount > 0 ? <span>{source.textSegmentCount} 个文本段</span> : null}
                     </div>
                   </div>
                   <div className="data-import-source__status">
-                    <span className={`source-status source-status--${source.status}`}>{source.status}</span>
+                    <span className={`source-status source-status--${source.status}`}>{SOURCE_STATUS_LABELS[source.status]}</span>
                     {source.status === "failed" && source.errorMessage ? (
                       <span className="source-status__error">{source.errorMessage}</span>
                     ) : null}
@@ -348,7 +384,7 @@ export function DataImportView(props: DataImportViewProps) {
                   <button
                     className="icon-button"
                     type="button"
-                    aria-label={`Remove ${source.name}`}
+                    aria-label={`移除 ${source.name}`}
                     onClick={(event) => {
                       event.preventDefault();
                       onRemoveSource(source.id);
@@ -369,6 +405,14 @@ export function DataImportView(props: DataImportViewProps) {
       </div>
     </section>
   );
+}
+
+export function getSendableSourceIds(
+  sources: readonly ImportedSource[],
+  selectedIds: readonly string[],
+): string[] {
+  const readyIds = new Set(sources.filter((source) => source.status === "ready").map((source) => source.id));
+  return selectedIds.filter((id) => readyIds.has(id));
 }
 
 function formatBytes(bytes: number): string {

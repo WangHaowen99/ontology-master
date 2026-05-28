@@ -24,13 +24,14 @@ interface OwlExportViewProps {
   readonly isValidating: boolean;
   readonly isReasoning: boolean;
   readonly exportPreview: string | null;
+  readonly onGoToModeler: () => void;
 }
 
 const FORMAT_OPTIONS: { readonly id: OwlExportFormat; readonly label: string; readonly extension: string; readonly description: string }[] = [
-  { id: "turtle", label: "Turtle (.ttl)", extension: ".ttl", description: "Compact, human-readable RDF serialization. Recommended for most use cases." },
-  { id: "rdfxml", label: "RDF/XML (.rdf)", extension: ".rdf", description: "Standard W3C RDF serialization. Widely supported by legacy tools." },
-  { id: "owlxml", label: "OWL/XML (.owl)", extension: ".owl", description: "XML-based OWL serialization. Good for Java/XML tooling." },
-  { id: "jsonld", label: "JSON-LD (.jsonld)", extension: ".jsonld", description: "JSON-based linked data format. Best for web applications." },
+  { id: "turtle", label: "Turtle (.ttl)", extension: ".ttl", description: "紧凑、便于人工阅读的 RDF 序列化，推荐作为默认导出格式。" },
+  { id: "rdfxml", label: "RDF/XML (.rdf)", extension: ".rdf", description: "W3C 标准 RDF XML 序列化，兼容传统语义网工具。" },
+  { id: "owlxml", label: "OWL/XML (.owl)", extension: ".owl", description: "面向 OWL 的 XML 序列化，适合 Java/XML 工具链。" },
+  { id: "jsonld", label: "JSON-LD (.jsonld)", extension: ".jsonld", description: "基于 JSON 的链接数据格式，适合 Web 应用集成。" },
 ];
 
 export function OwlExportView(props: OwlExportViewProps) {
@@ -44,6 +45,7 @@ export function OwlExportView(props: OwlExportViewProps) {
     isValidating,
     isReasoning,
     exportPreview,
+    onGoToModeler,
   } = props;
 
   const [selectedFormat, setSelectedFormat] = useState<OwlExportFormat>("turtle");
@@ -55,9 +57,14 @@ export function OwlExportView(props: OwlExportViewProps) {
         <div className="conversation owl-export-view">
           <section className="canvas canvas--empty">
             <div className="empty-panel">
-              <div className="session-header__eyebrow">Export</div>
-              <h1>No ontology to export</h1>
-              <p>Create or load an ontology using the Modeler first, then come back to export it.</p>
+              <div className="session-header__eyebrow">OWL 导出</div>
+              <h1>暂无可导出的本体</h1>
+              <p>请先通过 pi agent 完成本体建模，再回到这里导出 OWL 文件。</p>
+              <div className="empty-panel__actions">
+                <button className="button button--primary" type="button" onClick={onGoToModeler}>
+                  去本体建模
+                </button>
+              </div>
             </div>
           </section>
         </div>
@@ -72,10 +79,10 @@ export function OwlExportView(props: OwlExportViewProps) {
       <div className="conversation owl-export-view">
         <header className="view-header">
           <div>
-            <div className="chat-header__eyebrow">Export</div>
-            <h1 className="view-header__title">OWL Export</h1>
+            <div className="chat-header__eyebrow">OWL 导出</div>
+            <h1 className="view-header__title">导出本体文件</h1>
             <p className="view-header__body">
-              Export your ontology model in standard OWL 2 formats.
+              将 pi agent 生成的本体导出为标准 OWL 2 相关格式。
             </p>
           </div>
         </header>
@@ -87,32 +94,32 @@ export function OwlExportView(props: OwlExportViewProps) {
           <div className="owl-export-summary__stats">
             <div className="owl-export-stat">
               <div className="owl-export-stat__value">{summary.classCount}</div>
-              <div className="owl-export-stat__label">Classes</div>
+              <div className="owl-export-stat__label">类</div>
             </div>
             <div className="owl-export-stat">
               <div className="owl-export-stat__value">{summary.objectPropertyCount}</div>
-              <div className="owl-export-stat__label">Object Properties</div>
+              <div className="owl-export-stat__label">对象属性</div>
             </div>
             <div className="owl-export-stat">
               <div className="owl-export-stat__value">{summary.dataPropertyCount}</div>
-              <div className="owl-export-stat__label">Data Properties</div>
+              <div className="owl-export-stat__label">数据属性</div>
             </div>
             <div className="owl-export-stat">
               <div className="owl-export-stat__value">{summary.individualCount}</div>
-              <div className="owl-export-stat__label">Individuals</div>
+              <div className="owl-export-stat__label">个体</div>
             </div>
             <div className="owl-export-stat">
               <div className="owl-export-stat__value">{summary.axiomCount}</div>
-              <div className="owl-export-stat__label">Axioms</div>
+              <div className="owl-export-stat__label">公理</div>
             </div>
           </div>
-          <div className="owl-export-summary__modified">Last modified: {summary.lastModified}</div>
+          <div className="owl-export-summary__modified">最后修改：{summary.lastModified}</div>
         </div>
 
         {/* Validation status */}
         <div className="owl-export-validation">
           <div className="owl-export-validation__header">
-            <h3>Validation</h3>
+            <h3>验证</h3>
             <div className="owl-export-validation__actions">
               <button
                 className="button button--secondary"
@@ -120,7 +127,7 @@ export function OwlExportView(props: OwlExportViewProps) {
                 disabled={isValidating}
                 onClick={onValidate}
               >
-                {isValidating ? "Validating..." : "Run SHACL Validation"}
+                {isValidating ? "验证中..." : "运行 SHACL 验证"}
               </button>
               <button
                 className="button button--secondary"
@@ -128,7 +135,7 @@ export function OwlExportView(props: OwlExportViewProps) {
                 disabled={isReasoning}
                 onClick={onRunReasoner}
               >
-                {isReasoning ? "Reasoning..." : "Run Reasoner"}
+                {isReasoning ? "推理中..." : "运行推理"}
               </button>
             </div>
           </div>
@@ -136,7 +143,7 @@ export function OwlExportView(props: OwlExportViewProps) {
           {hasValidationErrors ? (
             <div className="owl-export-validation__errors">
               <div className="owl-export-validation__badge owl-export-validation__badge--error">
-                {summary.validationErrors.length} issue(s) found
+                发现 {summary.validationErrors.length} 个问题
               </div>
               <ul className="owl-export-validation__list">
                 {summary.validationErrors.map((err, i) => (
@@ -147,7 +154,7 @@ export function OwlExportView(props: OwlExportViewProps) {
           ) : validationResult ? (
             <div className={`owl-export-validation__result ${validationResult.ok ? "owl-export-validation__result--ok" : "owl-export-validation__result--error"}`}>
               <div className="owl-export-validation__badge">
-                {validationResult.ok ? "Validation passed" : "Validation issues found"}
+                {validationResult.ok ? "验证通过" : "发现验证问题"}
               </div>
               {validationResult.messages.length > 0 ? (
                 <ul className="owl-export-validation__list">
@@ -159,14 +166,14 @@ export function OwlExportView(props: OwlExportViewProps) {
             </div>
           ) : (
             <div className="owl-export-validation__pending">
-              <p>Run validation to check ontology consistency and SHACL shapes.</p>
+              <p>运行验证以检查本体一致性和 SHACL 约束。</p>
             </div>
           )}
         </div>
 
         {/* Format selection and export */}
         <div className="owl-export-format">
-          <h3>Export format</h3>
+          <h3>导出格式</h3>
           <div className="owl-export-format__options">
             {FORMAT_OPTIONS.map((fmt) => (
               <label
@@ -195,7 +202,7 @@ export function OwlExportView(props: OwlExportViewProps) {
               disabled={isExporting}
               onClick={() => setShowPreview(!showPreview)}
             >
-              {showPreview ? "Hide preview" : "Preview output"}
+              {showPreview ? "隐藏预览" : "预览输出"}
             </button>
             <button
               className="button button--primary"
@@ -203,7 +210,7 @@ export function OwlExportView(props: OwlExportViewProps) {
               disabled={isExporting || hasValidationErrors}
               onClick={() => onExport(selectedFormat)}
             >
-              {isExporting ? "Exporting..." : `Export as ${FORMAT_OPTIONS.find((f) => f.id === selectedFormat)?.label}`}
+              {isExporting ? "导出中..." : `导出为 ${FORMAT_OPTIONS.find((f) => f.id === selectedFormat)?.label}`}
             </button>
           </div>
         </div>
@@ -211,7 +218,7 @@ export function OwlExportView(props: OwlExportViewProps) {
         {/* Export preview */}
         {showPreview && exportPreview ? (
           <div className="owl-export-preview">
-            <h3>Preview</h3>
+            <h3>预览</h3>
             <pre className="owl-export-preview__code">{exportPreview}</pre>
           </div>
         ) : null}
