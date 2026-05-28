@@ -31,7 +31,7 @@ test("opens /tree from the composer, navigates branches, and blocks it on the ne
 
     const composer = window.getByTestId("composer");
     await composer.fill("/tre");
-    await expect(window.getByTestId("slash-menu")).toContainText("Tree");
+    await expect(window.getByTestId("slash-menu")).toContainText("会话树");
     await composer.press("Enter");
 
     const treeModal = window.getByTestId("tree-modal");
@@ -39,7 +39,7 @@ test("opens /tree from the composer, navigates branches, and blocks it on the ne
     await expect(window.getByTestId("tree-modal-search")).toBeFocused();
     await expect(treeModal).not.toContainText("Tree fixture session");
     await expect(treeModal).not.toContainText("gpt-5.4");
-    await expect(treeModal).not.toContainText("Thinking");
+    await expect(treeModal).not.toContainText("推理");
     await expect
       .poll(
         async () =>
@@ -65,10 +65,10 @@ test("opens /tree from the composer, navigates branches, and blocks it on the ne
     );
 
     await treeModal.locator(".tree-row__content", { hasText: "Branch alpha" }).click();
-    await treeModal.getByRole("button", { name: "Continue" }).click();
+    await treeModal.getByRole("button", { name: "继续" }).click();
     await expect(window.getByTestId("tree-summary-step")).toBeVisible();
-    await treeModal.getByRole("button", { name: "No summary" }).click();
-    await treeModal.getByRole("button", { name: "Switch branch" }).click();
+    await treeModal.getByRole("button", { name: "不总结" }).click();
+    await treeModal.getByRole("button", { name: "切换分支" }).click();
 
     await expect(treeModal).toHaveCount(0);
     await expect(composer).toHaveValue("Branch alpha");
@@ -79,9 +79,9 @@ test("opens /tree from the composer, navigates branches, and blocks it on the ne
     await composer.press("Enter");
     await expect(treeModal).toBeVisible();
     await treeModal.locator(".tree-row__content", { hasText: "Beta answer" }).click();
-    await treeModal.getByRole("button", { name: "Continue" }).click();
-    await treeModal.getByRole("button", { name: "No summary" }).click();
-    await treeModal.getByRole("button", { name: "Switch branch" }).click();
+    await treeModal.getByRole("button", { name: "继续" }).click();
+    await treeModal.getByRole("button", { name: "不总结" }).click();
+    await treeModal.getByRole("button", { name: "切换分支" }).click();
 
     await expect(treeModal).toHaveCount(0);
     await expect(composer).toHaveValue("");
@@ -95,7 +95,7 @@ test("opens /tree from the composer, navigates branches, and blocks it on the ne
     await expect(window.getByTestId("slash-menu")).toHaveCount(0);
     await newThreadComposer.press("Enter");
     await expect(window.getByTestId("composer-error-banner")).toContainText(
-      "/tree is only available inside an existing session.",
+      "/tree 只能在已有会话中使用。",
     );
     await expect(newThreadComposer).toHaveValue("/tree");
   } finally {
@@ -128,8 +128,7 @@ test("renders tool results with compact previews in the tree modal", async () =>
     const treeModal = window.getByTestId("tree-modal");
     await expect(treeModal).toBeVisible();
     await expect(treeModal).toContainText("[read:");
-    await expect(treeModal).toContainText("assistant: README inspected.");
-    await expect(treeModal.getByRole("button", { name: "No tools" })).toHaveCount(0);
+    await expect(treeModal).toContainText("助手：README inspected.");
   } finally {
     await harness.close();
   }

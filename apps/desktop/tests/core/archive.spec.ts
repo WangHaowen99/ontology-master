@@ -33,7 +33,7 @@ test("archives a hovered thread into a restorable sidebar section", async () => 
     await expect(window.locator(".topbar__session")).toHaveText("Thread one");
     const archivedGroup = window.locator(".archived-thread-group");
     const archivedToggle = archivedGroup.locator(".archived-thread-group__toggle");
-    await expect(archivedGroup).toContainText("Archived");
+    await expect(archivedGroup).toContainText("已归档");
     await expect(archivedToggle).toHaveAttribute("aria-expanded", "false");
     await expect(window.locator(".session-list--archived")).toHaveCount(0);
 

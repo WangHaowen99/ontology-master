@@ -127,7 +127,7 @@ export function Sidebar(props: SidebarProps) {
           onClick={onNewThread}
         >
           <PlusIcon />
-          <span>New thread</span>
+          <span>新建会话</span>
         </button>
 
         <div className="sidebar__nav">
@@ -137,7 +137,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onSetActiveView("threads")}
           >
             <FolderIcon />
-            <span>Threads</span>
+            <span>会话</span>
           </button>
           <button
             className={`sidebar__nav-item ${activeView === "data-import" ? "sidebar__nav-item--active" : ""}`}
@@ -169,7 +169,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onOpenSkills(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
           >
             <SkillIcon />
-            <span>Skills</span>
+            <span>技能</span>
           </button>
           <button
             className="sidebar__nav-item"
@@ -177,7 +177,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onOpenExtensions(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
           >
             <ExtensionIcon />
-            <span>Extensions</span>
+            <span>扩展</span>
           </button>
           <button
             className="sidebar__nav-item"
@@ -185,17 +185,17 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onOpenSettings(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
           >
             <SettingsIcon />
-            <span>Settings</span>
+            <span>设置</span>
           </button>
         </div>
       </div>
 
       <div className="sidebar__section">
         <div className="section__head">
-          <span>Threads</span>
+          <span>会话</span>
           <div className="section__tools">
             <button
-              aria-label="Open folder"
+              aria-label="打开文件夹"
               className="icon-button"
               type="button"
               onClick={() => {
@@ -209,8 +209,8 @@ export function Sidebar(props: SidebarProps) {
 
         {visibleWorkspaces.length === 0 ? (
           <div className="empty-state" data-testid="empty-state">
-            <h2>No folders yet</h2>
-            <p>Open a project folder to start building a workspace and session list.</p>
+            <h2>还没有文件夹</h2>
+            <p>打开项目文件夹后，可以在这里管理工作区和会话。</p>
             <button
               className="button button--primary"
               type="button"
@@ -218,7 +218,7 @@ export function Sidebar(props: SidebarProps) {
                 void updateSnapshot(api, setSnapshot, () => api.pickWorkspace());
               }}
             >
-              Open first folder
+              打开第一个文件夹
             </button>
           </div>
         ) : (
@@ -375,7 +375,7 @@ function WorkspaceGroupContent(
           ref={wsMenu.workspaceMenuId === rootWorkspace.id ? wsMenu.workspaceMenuWrapRef : undefined}
         >
           <button
-            aria-label={`Workspace actions for ${rootWorkspace.name}`}
+            aria-label={`${rootWorkspace.name} 的工作区操作`}
             aria-haspopup="menu"
             className="icon-button workspace-row__menu-button"
             aria-expanded={wsMenu.workspaceMenuId === rootWorkspace.id}
@@ -399,7 +399,7 @@ function WorkspaceGroupContent(
                   })
                 }
               >
-                Open folder
+                打开文件夹
               </button>
               {linkedWorktree ? (
                 <button
@@ -411,7 +411,7 @@ function WorkspaceGroupContent(
                     )
                   }
                 >
-                  Remove worktree
+                  移除 worktree
                 </button>
               ) : (
                 <button
@@ -421,7 +421,7 @@ function WorkspaceGroupContent(
                     wsMenu.runWorkspaceMenuAction(event, () => wsMenu.createWorktree(rootWorkspace.id))
                   }
                 >
-                  Create permanent worktree
+                  创建永久 worktree
                 </button>
               )}
               <button
@@ -429,14 +429,14 @@ function WorkspaceGroupContent(
                 type="button"
                 onClick={(event) => wsMenu.runWorkspaceMenuAction(event, () => wsMenu.startRename(rootWorkspace))}
               >
-                Edit name
+                编辑名称
               </button>
               <button
                 className="workspace-menu__item workspace-menu__item--danger"
                 type="button"
                 onClick={(event) => wsMenu.runWorkspaceMenuAction(event, () => wsMenu.removeWorkspace(rootWorkspace))}
               >
-                Remove
+                移除
               </button>
             </div>
           ) : null}
@@ -452,7 +452,7 @@ function WorkspaceGroupContent(
           }}
         >
           <input
-            aria-label={`Rename ${rootWorkspace.name}`}
+            aria-label={`重命名 ${rootWorkspace.name}`}
             className="workspace-rename__input"
             ref={wsMenu.workspaceRenameInputRef}
             value={wsMenu.workspaceRenameDraft}
@@ -468,10 +468,10 @@ function WorkspaceGroupContent(
           />
           <div className="workspace-rename__actions">
             <button className="workspace-rename__button" type="button" onClick={wsMenu.cancelRename}>
-              Cancel
+              取消
             </button>
             <button className="workspace-rename__button workspace-rename__button--primary" type="submit">
-              Save
+              保存
             </button>
           </div>
         </form>
@@ -511,7 +511,7 @@ function WorkspaceGroupContent(
                 >
                   <ChevronDownIcon />
                 </span>
-                <span>Archived</span>
+                <span>已归档</span>
                 <span className="archived-thread-group__count">{archivedThreads.length}</span>
               </button>
               {archivedSectionOpen ? (
@@ -597,7 +597,7 @@ function ThreadSessionRow({
         ) : null}
         <span className="session-row__time">{formatRelativeTime(thread.session.updatedAt)}</span>
         <button
-          aria-label={`${archived ? "Restore" : "Archive"} ${thread.session.title}`}
+          aria-label={`${archived ? "恢复" : "归档"} ${thread.session.title}`}
           className="icon-button session-row__action"
           type="button"
           onClick={onAction}

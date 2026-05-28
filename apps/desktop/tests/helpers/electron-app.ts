@@ -1328,7 +1328,7 @@ export async function openNewThread(window: Page): Promise<void> {
   if (await composer.isVisible().catch(() => false)) {
     return;
   }
-  const button = window.locator(".sidebar").getByRole("button", { name: "New thread", exact: true });
+  const button = window.locator(".sidebar").getByRole("button", { name: "新建会话", exact: true });
   await expect(button).toBeVisible({ timeout: 15_000 });
   await expect(button).toBeEnabled({ timeout: 15_000 });
   await button.click();
@@ -1364,9 +1364,9 @@ export async function startThreadFromSurface(
   } else {
     await window.getByRole("button", { name: "Local", exact: true }).click();
   }
-  const startButton = window.getByRole("button", { name: "Start thread" });
+  const startButton = window.getByRole("button", { name: "开始会话" });
   if (prompt) {
-    await window.getByLabel("New thread prompt").fill(prompt);
+    await window.getByLabel("新建会话 prompt").fill(prompt);
   }
   await expect(startButton).toBeEnabled({ timeout: 15_000 });
   await startButton.click();

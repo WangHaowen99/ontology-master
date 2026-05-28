@@ -620,6 +620,12 @@ export class DesktopAppStore implements AppStoreInternals {
     );
   }
 
+  async setProviderBaseUrl(workspaceId: string, providerId: string, baseUrl: string): Promise<DesktopAppState> {
+    return this.withRuntimeUpdate(workspaceId, (ws) =>
+      this.driver.runtimeSupervisor.setProviderBaseUrl(ws, providerId, baseUrl),
+    );
+  }
+
   async setEnableSkillCommands(workspaceId: string, enabled: boolean): Promise<DesktopAppState> {
     return this.withRuntimeUpdate(workspaceId, (ws) =>
       this.driver.runtimeSupervisor.setEnableSkillCommands(ws, enabled),

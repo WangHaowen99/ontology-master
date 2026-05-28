@@ -28,16 +28,16 @@ test("supports workspace rename and remove from the sidebar menu", async () => {
     const workspace = state.workspaces.find((entry) => entry.path === workspaceA);
     assertExists(workspace, "Expected first workspace");
 
-    await window.getByRole("button", { name: `Workspace actions for ${basename(workspaceA)}` }).click();
+    await window.getByRole("button", { name: `${basename(workspaceA)} 的工作区操作` }).click();
     const workspaceMenu = window.locator(".workspace-menu").last();
-    await expect(workspaceMenu.getByRole("button", { name: "Open folder" })).toBeVisible();
-    await expect(workspaceMenu.getByRole("button", { name: "Edit name" })).toBeVisible();
-    await expect(workspaceMenu.getByRole("button", { name: "Remove" })).toBeVisible();
+    await expect(workspaceMenu.getByRole("button", { name: "打开文件夹" })).toBeVisible();
+    await expect(workspaceMenu.getByRole("button", { name: "编辑名称" })).toBeVisible();
+    await expect(workspaceMenu.getByRole("button", { name: "移除" })).toBeVisible();
 
-    await workspaceMenu.getByRole("button", { name: "Edit name" }).click();
-    const renameInput = window.getByLabel(`Rename ${basename(workspaceA)}`);
+    await workspaceMenu.getByRole("button", { name: "编辑名称" }).click();
+    const renameInput = window.getByLabel(`重命名 ${basename(workspaceA)}`);
     await renameInput.fill("Renamed workspace");
-    await window.getByRole("button", { name: "Save" }).click();
+    await window.getByRole("button", { name: "保存" }).click();
 
     await expect.poll(async () => {
       const latest = await getDesktopState(window);
@@ -47,8 +47,8 @@ test("supports workspace rename and remove from the sidebar menu", async () => {
     window.once("dialog", (dialog) => {
       void dialog.accept();
     });
-    await window.getByRole("button", { name: "Workspace actions for Renamed workspace" }).click();
-    await window.getByRole("button", { name: "Remove" }).click();
+    await window.getByRole("button", { name: "Renamed workspace 的工作区操作" }).click();
+    await window.getByRole("button", { name: "移除" }).click();
 
     await expect.poll(async () => {
       const latest = await getDesktopState(window);

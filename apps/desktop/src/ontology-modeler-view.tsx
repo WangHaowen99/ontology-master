@@ -63,6 +63,7 @@ interface OntologyModelerViewProps {
   readonly onDeleteClass: (iri: string) => void;
   readonly onGoToImport: () => void;
   readonly onGoToExport: () => void;
+  readonly onOpenModelSettings: () => void;
 }
 
 type ModelerTab = "tree" | "properties" | "individuals";
@@ -103,6 +104,7 @@ export function OntologyModelerView(props: OntologyModelerViewProps) {
     onDeleteClass,
     onGoToImport,
     onGoToExport,
+    onOpenModelSettings,
   } = props;
 
   const [selectedClassIri, setSelectedClassIri] = useState<string | null>(null);
@@ -191,6 +193,20 @@ export function OntologyModelerView(props: OntologyModelerViewProps) {
 
   return (
     <section className="canvas canvas--ontology-modeler">
+      <nav className="ontology-workbench-nav" aria-label="本体工作台流程">
+        <button className="ontology-workbench-nav__item" type="button" onClick={onGoToImport}>
+          数据导入
+        </button>
+        <button className="ontology-workbench-nav__item ontology-workbench-nav__item--active" type="button">
+          本体建模
+        </button>
+        <button className="ontology-workbench-nav__item" type="button" onClick={onGoToExport}>
+          OWL 导出
+        </button>
+        <button className="ontology-workbench-nav__item ontology-workbench-nav__item--settings" type="button" onClick={onOpenModelSettings}>
+          模型配置
+        </button>
+      </nav>
       <div className="ontology-modeler-layout">
         <aside className="ontology-panel ontology-panel--left">
           <div className="ontology-panel__header">

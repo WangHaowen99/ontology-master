@@ -152,9 +152,9 @@ export function ComposerPanel({
           mentionOptions={mentionOptions}
           selectedMentionIndex={selectedMentionIndex}
           onSelectMention={onSelectMention}
-          textareaLabel="Composer"
+          textareaLabel="输入框"
           textareaTestId="composer"
-          textareaPlaceholder="Ask pi to inspect the repo, run a fix, or continue the current thread..."
+          textareaPlaceholder="让 pi 检查仓库、修复问题，或继续当前会话..."
           extensionDock={extensionDock}
           extensionDockExpanded={extensionDockExpanded}
           onToggleExtensionDock={onToggleExtensionDock}
@@ -163,8 +163,8 @@ export function ComposerPanel({
               <div className="composer__footer-row">
                 <div className="composer__hint">
                   {selectedSession.status === "running"
-                    ? `${runningLabel} · Enter to queue · Cmd+Enter to steer`
-                    : "Enter to send · Shift+Enter for newline"}
+                    ? `${runningLabel} · Enter 加入队列 · Cmd+Enter 引导`
+                    : "Enter 发送 · Shift+Enter 换行"}
                   {" · "}
                   <ModelSelector
                     runtime={runtime}
@@ -181,7 +181,7 @@ export function ComposerPanel({
                 </div>
                 <div className="composer__actions">
                   <button
-                    aria-label="Attach files"
+                    aria-label="添加文件"
                     className="icon-button composer__attach"
                     type="button"
                     onClick={onPickAttachments}
@@ -189,7 +189,7 @@ export function ComposerPanel({
                     <PlusIcon />
                   </button>
                   <button
-                    aria-label={primaryActionIsStop ? "Stop run" : "Send message"}
+                    aria-label={primaryActionIsStop ? "停止运行" : "发送消息"}
                     className="button button--primary button--cta-icon"
                     data-testid="send"
                     type="button"

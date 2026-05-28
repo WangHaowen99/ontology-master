@@ -63,8 +63,8 @@ export interface ComposerProviderOption extends ComposerSlashOption {
   readonly providerId: string;
 }
 
-export const MODEL_OPTIONS_EMPTY_TITLE = "No models available";
-export const MODEL_OPTIONS_EMPTY_DESCRIPTION = "Open Settings to enable a model or log in to a provider.";
+export const MODEL_OPTIONS_EMPTY_TITLE = "暂无可用模型";
+export const MODEL_OPTIONS_EMPTY_DESCRIPTION = "打开设置启用模型，或登录模型服务商。";
 
 export type ParsedComposerCommand =
   | { type: "model"; provider: string; modelId: string }
@@ -77,14 +77,14 @@ export type ParsedComposerCommand =
   | { type: "name"; title: string };
 
 const INCOMPLETE_COMMAND_MESSAGES: Readonly<Record<string, string>> = {
-  "/compact": "Add optional instructions after /compact or send it directly from the slash menu.",
-  "/login": "Choose a provider from the slash menu before sending /login.",
-  "/logout": "Choose a connected provider from the slash menu before sending /logout.",
-  "/model": "Choose a provider and model from the slash menu before sending /model.",
-  "/name": "Add a thread title after /name.",
-  "/scoped-models": "Open Enabled models from the slash menu or Settings.",
-  "/settings": "Open Settings from the slash menu or Cmd+,.",
-  "/thinking": "Choose a reasoning level from the slash menu before sending /thinking.",
+  "/compact": "可以在 /compact 后添加可选说明，或直接从斜杠菜单发送。",
+  "/login": "发送 /login 前请先从斜杠菜单选择服务商。",
+  "/logout": "发送 /logout 前请先从斜杠菜单选择已连接服务商。",
+  "/model": "发送 /model 前请先从斜杠菜单选择服务商和模型。",
+  "/name": "请在 /name 后添加会话标题。",
+  "/scoped-models": "请从斜杠菜单或设置中打开启用的模型。",
+  "/settings": "请从斜杠菜单或 Cmd+, 打开设置。",
+  "/thinking": "发送 /thinking 前请先从斜杠菜单选择推理强度。",
 } as const;
 
 const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
@@ -93,8 +93,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "model",
     command: "/model",
     template: "/model",
-    title: "Model",
-    description: "Choose the model for this session",
+    title: "模型",
+    description: "选择当前会话使用的模型",
     submitMode: "pick-option",
     section: "host",
   },
@@ -103,8 +103,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "thinking",
     command: "/thinking",
     template: "/thinking",
-    title: "Reasoning",
-    description: "Set thinking level for this session",
+    title: "推理",
+    description: "设置当前会话的推理强度",
     submitMode: "pick-option",
     section: "host",
   },
@@ -113,8 +113,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "tree",
     command: "/tree",
     template: "/tree",
-    title: "Tree",
-    description: "Browse and jump between branches in this session",
+    title: "会话树",
+    description: "浏览并跳转当前会话中的分支",
     submitMode: "immediate",
     section: "host",
   },
@@ -123,8 +123,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "status",
     command: "/status",
     template: "/status",
-    title: "Status",
-    description: "Show current session overrides in the timeline",
+    title: "状态",
+    description: "在时间线中显示当前会话覆盖设置",
     submitMode: "immediate",
     section: "host",
   },
@@ -133,8 +133,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "login",
     command: "/login",
     template: "/login",
-    title: "Login",
-    description: "Authenticate a provider for this workspace",
+    title: "登录",
+    description: "为当前工作区认证模型服务商",
     submitMode: "pick-option",
     section: "host",
   },
@@ -143,8 +143,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "logout",
     command: "/logout",
     template: "/logout",
-    title: "Logout",
-    description: "Remove a provider login from this workspace",
+    title: "退出登录",
+    description: "移除当前工作区的服务商登录",
     submitMode: "pick-option",
     section: "host",
   },
@@ -153,8 +153,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "settings",
     command: "/settings",
     template: "/settings",
-    title: "Settings",
-    description: "Open model, skill, and notification settings",
+    title: "设置",
+    description: "打开模型、技能和通知设置",
     submitMode: "immediate",
     section: "host",
   },
@@ -163,8 +163,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "scoped-models",
     command: "/scoped-models",
     template: "/scoped-models",
-    title: "Enabled models",
-    description: "Choose which models appear in pickers",
+    title: "启用的模型",
+    description: "选择哪些模型显示在选择器中",
     submitMode: "immediate",
     section: "host",
   },
@@ -173,8 +173,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "session",
     command: "/session",
     template: "/session",
-    title: "Session",
-    description: "Show current session details in the timeline",
+    title: "会话",
+    description: "在时间线中显示当前会话详情",
     submitMode: "immediate",
     section: "host",
   },
@@ -182,9 +182,9 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     id: "host:name",
     kind: "name",
     command: "/name",
-    template: "/name New thread title",
-    title: "Rename",
-    description: "Rename the current session",
+    template: "/name 新会话标题",
+    title: "重命名",
+    description: "重命名当前会话",
     submitMode: "prefill",
     section: "host",
   },
@@ -193,8 +193,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "compact",
     command: "/compact",
     template: "/compact",
-    title: "Compact",
-    description: "Compact session context now",
+    title: "压缩上下文",
+    description: "立即压缩会话上下文",
     submitMode: "immediate",
     section: "host",
   },
@@ -203,8 +203,8 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
     kind: "reload",
     command: "/reload",
     template: "/reload",
-    title: "Reload",
-    description: "Reload prompts, skills, and session resources",
+    title: "重新加载",
+    description: "重新加载提示词、技能和会话资源",
     submitMode: "immediate",
     section: "host",
   },
@@ -213,23 +213,23 @@ const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
 export const THINKING_OPTIONS: readonly ComposerSlashOption[] = [
   {
     value: "low",
-    label: "Low",
-    description: "Fast responses with lighter reasoning",
+    label: "低",
+    description: "更快响应，较轻推理",
   },
   {
     value: "medium",
-    label: "Medium",
-    description: "Balances speed and reasoning depth for everyday tasks",
+    label: "中",
+    description: "在日常任务中平衡速度和推理深度",
   },
   {
     value: "high",
-    label: "High",
-    description: "Greater reasoning depth for complex problems",
+    label: "高",
+    description: "为复杂问题提供更深推理",
   },
   {
     value: "xhigh",
-    label: "Extra High",
-    description: "Extra high reasoning depth for complex problems",
+    label: "超高",
+    description: "为复杂问题提供最高推理深度",
   },
 ] as const;
 
@@ -270,12 +270,12 @@ export function buildSlashCommandSections(
   const sections: ComposerSlashCommandSection[] = [
     {
       id: "runtime",
-      title: runtimeMatches.length > 0 ? "Runtime Commands" : undefined,
+      title: runtimeMatches.length > 0 ? "运行时命令" : undefined,
       items: runtimeMatches,
     },
     {
       id: "host",
-      title: hostMatches.length > 0 ? "Host Actions" : undefined,
+      title: hostMatches.length > 0 ? "主机操作" : undefined,
       items: hostMatches,
   },
 ];
@@ -496,24 +496,24 @@ function buildSlashSearchAliases(command: ComposerSlashCommand): readonly string
 
 function describeProvider(provider: RuntimeProviderRecord): string {
   if (provider.authSource === "oauth") {
-    return "OAuth connected";
+    return "OAuth 已连接";
   }
   if (provider.authSource === "auth_file") {
-    return "Saved API key";
+    return "已保存 API Key";
   }
   if (provider.authSource === "env") {
-    return "Configured via environment";
+    return "通过环境变量配置";
   }
   if (provider.authSource === "external") {
-    return "Configured externally";
+    return "外部配置";
   }
   if (provider.oauthSupported) {
-    return "OAuth available";
+    return "可使用 OAuth";
   }
   if (provider.apiKeySetupSupported) {
-    return "Needs API key";
+    return "需要 API Key";
   }
-  return "Available";
+  return "可用";
 }
 
 function compareProviders(left: RuntimeProviderRecord, right: RuntimeProviderRecord): number {
@@ -549,7 +549,7 @@ function providerRankForId(
 function summarizeSkillDescription(value: string): string {
   const trimmed = value.trim().replace(/\s+/g, " ");
   if (!trimmed) {
-    return "Reusable workflow";
+    return "可复用工作流";
   }
 
   const firstSentence = trimmed.match(/^[^.!?]+[.!?]?/)?.[0]?.trim() ?? trimmed;
@@ -568,31 +568,31 @@ function formatRuntimeCommandDescription(command: RuntimeCommandRecord): string 
     return command.description.trim();
   }
   if (command.source === "prompt") {
-    return "Prompt template";
+    return "提示词模板";
   }
   if (command.source === "skill") {
-    return "Skill command";
+    return "技能命令";
   }
-  return "Extension command";
+  return "扩展命令";
 }
 
 function formatRuntimeSourceLabel(command: RuntimeCommandRecord): string {
   if (command.source === "skill") {
-    return "Skill";
+    return "技能";
   }
   if (command.source === "prompt") {
-    return "Prompt";
+    return "提示词";
   }
   return command.sourceInfo.source.replace(/^extension:/, "");
 }
 
 export function formatSessionConfigStatus(config?: SessionConfig): string {
   const parts = [
-    config?.provider && config?.modelId ? `Model ${config.provider}:${config.modelId}` : undefined,
-    config?.thinkingLevel ? `Thinking ${config.thinkingLevel}` : undefined,
+    config?.provider && config?.modelId ? `模型 ${config.provider}:${config.modelId}` : undefined,
+    config?.thinkingLevel ? `推理 ${config.thinkingLevel}` : undefined,
   ].filter(Boolean);
 
-  return parts.length > 0 ? parts.join(" · ") : "No session overrides set";
+  return parts.length > 0 ? parts.join(" · ") : "未设置会话覆盖";
 }
 
 export function parseComposerCommand(value: string): ParsedComposerCommand | undefined {

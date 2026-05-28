@@ -81,7 +81,7 @@ test("toggles the diff panel from the keyboard shortcut and renders changed file
 
     await window.keyboard.press(desktopShortcut("D"));
     await expect(diffPanel).toBeVisible();
-    await expect(diffPanel.locator(".diff-panel__title")).toContainText("Changes");
+    await expect(diffPanel.locator(".diff-panel__title")).toContainText("变更");
     await expect(diffPanel.locator(".diff-panel__file-name")).toContainText("README.md");
 
     const mainBox = await window.locator(".main").boundingBox();

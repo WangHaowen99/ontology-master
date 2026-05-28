@@ -22,6 +22,7 @@ export interface RuntimeProviderRecord {
   readonly authSource: RuntimeProviderAuthSource;
   readonly oauthSupported: boolean;
   readonly apiKeySetupSupported: boolean;
+  readonly baseUrl?: string;
 }
 
 export interface RuntimeModelRecord {
@@ -136,6 +137,7 @@ export interface RuntimeResourceDriver {
   login(workspace: WorkspaceRef, providerId: string, callbacks: RuntimeLoginCallbacks): Promise<RuntimeSnapshot>;
   logout(workspace: WorkspaceRef, providerId: string): Promise<RuntimeSnapshot>;
   setProviderApiKey(workspace: WorkspaceRef, providerId: string, apiKey: string): Promise<RuntimeSnapshot>;
+  setProviderBaseUrl(workspace: WorkspaceRef, providerId: string, baseUrl: string): Promise<RuntimeSnapshot>;
   setDefaultModel(
     workspace: WorkspaceRef,
     selection: {

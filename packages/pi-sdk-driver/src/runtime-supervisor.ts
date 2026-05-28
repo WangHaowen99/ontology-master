@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import {
   DefaultPackageManager,
@@ -46,6 +46,11 @@ interface RuntimeContext {
 interface ProjectWritableSettingsManager {
   markProjectModified(field: string, nestedKey?: string): void;
   saveProjectSettings(settings: Record<string, unknown>): void;
+}
+
+interface ModelsJsonProviderConfig {
+  readonly baseUrl?: string;
+  readonly [key: string]: unknown;
 }
 
 export interface RuntimeSupervisorOptions {
@@ -115,6 +120,18 @@ export class RuntimeSupervisor implements RuntimeResourceDriver {
     this.modelRegistry.refresh();
     await context.resourceLoader.reload();
     await this.autoEnableModelsForAuthenticatedProviders(context, [providerId]);
+    return this.buildSnapshot(context);
+  }
+
+  async setProviderBaseUrl(workspace: WorkspaceRef, providerId: string, baseUrl: string): Promise<RuntimeSnapshot> {
+    const context = await this.ensureContext(workspace);
+    const normalized = baseUrl.trim();
+    if (normalized && !isLikelyHttpUrl(normalized)) {
+      throw new Error("Base URL must start with http:// or https://.");
+    }
+    await updateModelsJsonProviderBaseUrl(join(this.agentDir, "models.json"), providerId, normalized || undefined);
+    this.modelRegistry.refresh();
+    await context.resourceLoader.reload();
     return this.buildSnapshot(context);
   }
 
@@ -404,10 +421,12 @@ export class RuntimeSupervisor implements RuntimeResourceDriver {
 
   private async buildProviderRecords(): Promise<readonly RuntimeProviderRecord[]> {
     const oauthProviders = new Map(this.authStorage.getOAuthProviders().map((provider) => [provider.id, provider]));
+    const providerBaseUrls = await readProviderBaseUrls(join(this.agentDir, "models.json"));
     const providerIds = new Set<string>([
       ...this.modelRegistry.getAll().map((model) => model.provider),
       ...oauthProviders.keys(),
       ...this.authStorage.list(),
+      ...providerBaseUrls.keys(),
     ]);
 
     return [...providerIds]
@@ -418,6 +437,7 @@ export class RuntimeSupervisor implements RuntimeResourceDriver {
         const apiKeySetupSupported = providerSupportsDesktopApiKeySetup(providerId);
         const providerAuthStatus = this.modelRegistry.getProviderAuthStatus(providerId);
         const hasAuth = providerAuthStatus.configured || this.authStorage.hasAuth(providerId);
+        const baseUrl = providerBaseUrls.get(providerId);
         return {
           id: providerId,
           name: oauthProvider?.name ?? providerId,
@@ -426,6 +446,7 @@ export class RuntimeSupervisor implements RuntimeResourceDriver {
           authSource: inferProviderAuthSource(auth, providerAuthStatus, apiKeySetupSupported),
           oauthSupported: Boolean(oauthProvider),
           apiKeySetupSupported,
+          ...(baseUrl ? { baseUrl } : {}),
         };
       });
   }
@@ -690,6 +711,66 @@ async function readJsonRecord(filePath: string): Promise<Record<string, unknown>
   } catch {
     return {};
   }
+}
+
+async function writeJsonRecord(filePath: string, record: Record<string, unknown>): Promise<void> {
+  await mkdir(dirname(filePath), { recursive: true });
+  await writeFile(filePath, `${JSON.stringify(record, null, 2)}\n`, "utf8");
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isLikelyHttpUrl(value: string): boolean {
+  return value.startsWith("http://") || value.startsWith("https://");
+}
+
+async function readProviderBaseUrls(filePath: string): Promise<Map<string, string>> {
+  const config = await readJsonRecord(filePath);
+  const providers = isObjectRecord(config.providers) ? config.providers : {};
+  const baseUrls = new Map<string, string>();
+  for (const [providerId, providerConfig] of Object.entries(providers)) {
+    if (!isObjectRecord(providerConfig)) {
+      continue;
+    }
+    const baseUrl = providerConfig.baseUrl;
+    if (typeof baseUrl === "string" && baseUrl.trim()) {
+      baseUrls.set(providerId, baseUrl.trim());
+    }
+  }
+  return baseUrls;
+}
+
+async function updateModelsJsonProviderBaseUrl(
+  filePath: string,
+  providerId: string,
+  baseUrl: string | undefined,
+): Promise<void> {
+  const config = await readJsonRecord(filePath);
+  const providers = isObjectRecord(config.providers) ? { ...config.providers } : {};
+  const existingProvider = isObjectRecord(providers[providerId]) ? providers[providerId] as ModelsJsonProviderConfig : {};
+  const nextProvider: Record<string, unknown> = { ...existingProvider };
+
+  if (baseUrl) {
+    nextProvider.baseUrl = baseUrl;
+  } else {
+    delete nextProvider.baseUrl;
+  }
+
+  if (Object.keys(nextProvider).length > 0) {
+    providers[providerId] = nextProvider;
+  } else {
+    delete providers[providerId];
+  }
+
+  if (Object.keys(providers).length > 0) {
+    config.providers = providers;
+  } else {
+    delete config.providers;
+  }
+
+  await writeJsonRecord(filePath, config);
 }
 
 function replaceResourcePattern(patterns: readonly string[], resourcePattern: string, enabled: boolean): string[] {

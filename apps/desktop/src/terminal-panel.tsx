@@ -218,6 +218,10 @@ export function TerminalPanel({
         void createTerminal();
         return false;
       }
+      if (commandModifier && !event.shiftKey && key === "j") {
+        onHide();
+        return false;
+      }
       if (api.platform === "darwin" && event.metaKey) {
         if (key === "c" && terminal.hasSelection()) {
           void navigator.clipboard.writeText(terminal.getSelection());
@@ -307,7 +311,7 @@ export function TerminalPanel({
     >
       <div className="terminal-panel__resize-handle" onMouseDown={startResize} />
       <div className="terminal-panel__toolbar">
-        <div className="terminal-panel__tabs" role="tablist" aria-label="Terminal sessions">
+        <div className="terminal-panel__tabs" role="tablist" aria-label="终端会话">
           {(panel?.sessions ?? []).map((session) => (
             <div
               key={session.id}
@@ -327,7 +331,7 @@ export function TerminalPanel({
               <button
                 type="button"
                 className="terminal-panel__tab-close"
-                aria-label={`Close ${session.title}`}
+                aria-label={`关闭 ${session.title}`}
                 onClick={(event) => {
                   event.stopPropagation();
                   void closeTerminal(session.id);
@@ -339,22 +343,22 @@ export function TerminalPanel({
           ))}
         </div>
         <div className="terminal-panel__actions">
-          <button type="button" className="icon-button terminal-panel__action" title="New terminal" aria-label="New terminal" onClick={() => void createTerminal()}>
+          <button type="button" className="icon-button terminal-panel__action" title="新建终端" aria-label="新建终端" onClick={() => void createTerminal()}>
             <PlusIcon />
           </button>
-          <button type="button" className="icon-button terminal-panel__action" title="Restart terminal" aria-label="Restart terminal" onClick={() => void restartTerminal()}>
+          <button type="button" className="icon-button terminal-panel__action" title="重启终端" aria-label="重启终端" onClick={() => void restartTerminal()}>
             <RefreshIcon />
           </button>
           <button
             type="button"
             className="icon-button terminal-panel__action"
-            title={isTakeover ? "Restore terminal" : "Maximize terminal"}
-            aria-label={isTakeover ? "Restore terminal" : "Maximize terminal"}
+            title={isTakeover ? "恢复终端" : "最大化终端"}
+            aria-label={isTakeover ? "恢复终端" : "最大化终端"}
             onClick={onToggleTakeover}
           >
             {isTakeover ? <MinimizeIcon /> : <MaximizeIcon />}
           </button>
-          <button type="button" className="icon-button terminal-panel__action" title="Hide terminal" aria-label="Hide terminal" onClick={onHide}>
+          <button type="button" className="icon-button terminal-panel__action" title="隐藏终端" aria-label="隐藏终端" onClick={onHide}>
             <CloseIcon />
           </button>
         </div>

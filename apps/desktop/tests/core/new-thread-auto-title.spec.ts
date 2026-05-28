@@ -32,15 +32,15 @@ test("auto-titles a brand-new local thread after showing the placeholder first",
       prompt: "Refactor the session title flow and keep sidebar state in sync",
     });
 
-    const placeholderRow = window.locator(".session-row__select", { hasText: "New thread" }).first();
-    await expect(window.locator(".topbar__session")).toHaveText("New thread");
+    const placeholderRow = window.locator(".session-row__select", { hasText: "新建会话" }).first();
+    await expect(window.locator(".topbar__session")).toHaveText("新建会话");
     await expect(placeholderRow).toBeVisible();
 
     await resolveDeferredThreadTitleEventually(harness, "Refactor title flow");
 
     await expect(window.locator(".topbar__session")).toHaveText("Refactor title flow");
     await expect(window.locator(".session-row__select", { hasText: "Refactor title flow" }).first()).toBeVisible();
-    await expect(window.locator(".session-row__select", { hasText: "New thread" })).toHaveCount(0);
+    await expect(window.locator(".session-row__select", { hasText: "新建会话" })).toHaveCount(0);
   } finally {
     await harness.close();
   }
@@ -66,8 +66,8 @@ test("auto-titles a brand-new worktree thread after showing the placeholder firs
       prompt: "Fix the worktree rename race before shipping",
     });
 
-    const placeholderRow = window.locator(".session-row__select", { hasText: "New thread" }).first();
-    await expect(window.locator(".topbar__session")).toHaveText("New thread");
+    const placeholderRow = window.locator(".session-row__select", { hasText: "新建会话" }).first();
+    await expect(window.locator(".topbar__session")).toHaveText("新建会话");
     await expect(placeholderRow).toBeVisible();
 
     await resolveDeferredThreadTitleEventually(harness, "Fix worktree rename");
@@ -97,7 +97,7 @@ test("switching away does not cancel a pending auto-title", async () => {
       prompt: "Keep auto title alive after switching views",
     });
 
-    await expect(window.locator(".topbar__session")).toHaveText("New thread");
+    await expect(window.locator(".topbar__session")).toHaveText("新建会话");
     await selectSession(window, "Existing thread");
     await expect.poll(async () => (await getDesktopState(window)).selectedWorkspaceId).toBe(workspace.id);
 
@@ -137,8 +137,8 @@ test("manual rename beats a delayed auto-title result", async () => {
     });
 
     const composer = window.getByTestId("composer");
-    await expect(window.locator(".topbar__session")).toHaveText("New thread");
-    await expect(window.locator(".session-row__select", { hasText: "New thread" }).first()).toBeVisible();
+    await expect(window.locator(".topbar__session")).toHaveText("新建会话");
+    await expect(window.locator(".session-row__select", { hasText: "新建会话" }).first()).toBeVisible();
     await waitForComposerReadyForNextSubmit(window);
 
     await composer.fill("/name Manual title wins");
@@ -173,7 +173,7 @@ test("later sends do not retrigger auto-title generation", async () => {
       prompt: "Track a one-shot title request token",
     });
 
-    await expect(window.locator(".topbar__session")).toHaveText("New thread");
+    await expect(window.locator(".topbar__session")).toHaveText("新建会话");
     await resolveDeferredThreadTitleEventually(harness, "Track title token");
     await expect(window.locator(".topbar__session")).toHaveText("Track title token");
     await expect(window.locator(".session-row__select", { hasText: "Track title token" }).first()).toBeVisible();
@@ -212,7 +212,7 @@ test("reopen heals a stale placeholder catalog title after auto-title finished",
       prompt: "Verify the app heals stale placeholder titles on reopen",
     });
 
-    await expect(window.locator(".topbar__session")).toHaveText("New thread");
+    await expect(window.locator(".topbar__session")).toHaveText("新建会话");
     await resolveDeferredThreadTitleEventually(harness, generatedTitle);
     await expect(window.locator(".topbar__session")).toHaveText(generatedTitle);
     await expect(window.locator(".session-row__select", { hasText: generatedTitle }).first()).toBeVisible();
@@ -233,7 +233,7 @@ test("reopen heals a stale placeholder catalog title after auto-title finished",
   };
   catalogs.sessions = catalogs.sessions.map((session) =>
     session.sessionRef.workspaceId === workspaceId && session.sessionRef.sessionId === sessionId
-      ? { ...session, title: "New thread" }
+      ? { ...session, title: "新建会话" }
       : session,
   );
   await writeFile(catalogsPath, `${JSON.stringify(catalogs, null, 2)}\n`, "utf8");
@@ -244,7 +244,7 @@ test("reopen heals a stale placeholder catalog title after auto-title finished",
     await waitForWorkspaceByPath(window, workspacePath);
     await expect(window.locator(".topbar__session")).toHaveText(generatedTitle);
     await expect(window.locator(".session-row__select", { hasText: generatedTitle }).first()).toBeVisible();
-    await expect(window.locator(".session-row__select", { hasText: "New thread" })).toHaveCount(0);
+    await expect(window.locator(".session-row__select", { hasText: "新建会话" })).toHaveCount(0);
   } finally {
     await secondRun.close();
   }

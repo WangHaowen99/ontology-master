@@ -32,7 +32,7 @@ test("clears mixed attachment chips on submit after paste and file attach", asyn
     const composer = window.getByTestId("composer");
     await pasteTinyPng(window);
     await stubNextOpenDialog(harness, [filePath]);
-    await window.getByRole("button", { name: "Attach files" }).click();
+    await window.getByRole("button", { name: "添加文件" }).click();
 
     await expect(window.locator(".composer-attachment--image")).toHaveCount(1);
     await expect(window.locator(".composer-attachment--file")).toHaveCount(1);
@@ -64,12 +64,12 @@ test("persists transcript storage separately from ui state and restores the curr
     const composer = window.getByTestId("composer");
     await pasteTinyPng(window);
     await stubNextOpenDialog(firstRun, [filePath]);
-    await window.getByRole("button", { name: "Attach files" }).click();
+    await window.getByRole("button", { name: "添加文件" }).click();
     await expect(window.locator(".composer-attachment")).toHaveCount(2);
 
     await composer.fill("/status");
     await composer.press("Enter");
-    await expect(window.getByTestId("transcript")).toContainText(/Model |No session overrides set/);
+    await expect(window.getByTestId("transcript")).toContainText(/模型 |未设置会话覆盖/);
 
     await composer.fill("draft survives restart");
     await expect(composer).toHaveValue("draft survives restart");

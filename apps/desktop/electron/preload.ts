@@ -177,6 +177,8 @@ contextBridge.exposeInMainWorld("piApp", {
     ipcRenderer.invoke(desktopIpc.logoutProvider, workspaceId, providerId) as Promise<DesktopAppState>,
   setProviderApiKey: (workspaceId: string, providerId: string, apiKey: string) =>
     ipcRenderer.invoke(desktopIpc.setProviderApiKey, workspaceId, providerId, apiKey) as Promise<DesktopAppState>,
+  setProviderBaseUrl: (workspaceId: string, providerId: string, baseUrl: string) =>
+    ipcRenderer.invoke(desktopIpc.setProviderBaseUrl, workspaceId, providerId, baseUrl) as Promise<DesktopAppState>,
   setEnableSkillCommands: (workspaceId: string, enabled: boolean) =>
     ipcRenderer.invoke(desktopIpc.setEnableSkillCommands, workspaceId, enabled) as Promise<DesktopAppState>,
   setScopedModelPatterns: (workspaceId: string, patterns: readonly string[]) =>

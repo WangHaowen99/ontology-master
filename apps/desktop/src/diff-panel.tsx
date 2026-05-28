@@ -124,17 +124,17 @@ export function DiffPanel({
   return (
     <aside className="diff-panel">
       <div className="diff-panel__header">
-        <h2 className="diff-panel__title">Changes</h2>
+        <h2 className="diff-panel__title">变更</h2>
         {files.length > 0 ? (
           <span className="diff-panel__counter" data-testid="diff-panel-counter">
-            {`Reviewed ${reviewedCount} of ${files.length}`}
+            {`已审阅 ${reviewedCount} / ${files.length}`}
           </span>
         ) : null}
         <button
           className="icon-button"
           type="button"
           onClick={refresh}
-          aria-label="Refresh"
+          aria-label="刷新"
           disabled={loading}
         >
           <RefreshIcon />
@@ -142,7 +142,7 @@ export function DiffPanel({
       </div>
 
       {files.length === 0 ? (
-        <div className="diff-panel__empty">No changes</div>
+        <div className="diff-panel__empty">暂无变更</div>
       ) : (
         <>
           <div className="diff-panel__file-list" ref={fileListRef}>
@@ -159,7 +159,7 @@ export function DiffPanel({
               return (
                 <div className={className} key={file.path} data-file-path={file.path}>
                   <input
-                    aria-label={`Mark ${file.path} reviewed`}
+                    aria-label={`标记 ${file.path} 已审阅`}
                     className="diff-panel__reviewed-checkbox"
                     data-testid={`diff-panel-reviewed-${file.path}`}
                     type="checkbox"
@@ -180,7 +180,7 @@ export function DiffPanel({
                     onClick={() => handleStage(file.path)}
                     disabled={file.staged}
                   >
-                    {file.staged ? "Staged" : "Stage"}
+                    {file.staged ? "已暂存" : "暂存"}
                   </button>
                 </div>
               );

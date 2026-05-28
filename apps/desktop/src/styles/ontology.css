@@ -269,14 +269,46 @@
 /* ─── Ontology Modeler View ─── */
 
 .canvas--ontology-modeler {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   padding: 0;
   overflow: hidden;
+}
+
+.ontology-workbench-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 38px;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-muted);
+}
+
+.ontology-workbench-nav__item {
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 5px;
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 560;
+}
+
+.ontology-workbench-nav__item:hover,
+.ontology-workbench-nav__item--active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--text-strong);
+}
+
+.ontology-workbench-nav__item--settings {
+  margin-left: auto;
 }
 
 .ontology-modeler-layout {
   display: grid;
   grid-template-columns: 260px 1fr 280px;
   height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 

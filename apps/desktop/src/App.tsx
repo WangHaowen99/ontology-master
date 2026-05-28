@@ -961,6 +961,10 @@ export default function App() {
     return true;
   }, []);
   const sidebarToggleShortcutLabel = api ? getDesktopShortcutLabel(api.platform, "B") : "";
+  const cycleThemeMode = () => {
+    const nextMode = themeMode === "system" ? "light" : themeMode === "light" ? "dark" : "system";
+    handleSetThemeMode(nextMode);
+  };
 
   useEffect(() => {
     const handleCommand = (command: PiDesktopCommand): boolean => {
@@ -1265,8 +1269,8 @@ export default function App() {
       <div className="shell shell--loading">
         <main className="loading-card">
           <div className="loading-card__eyebrow">pi-gui</div>
-          <h1>Loading sessions</h1>
-          <p>The desktop shell is restoring folder and thread state from the main process.</p>
+          <h1>正在加载会话</h1>
+          <p>桌面端正在从主进程恢复文件夹和会话状态。</p>
         </main>
       </div>
     );
@@ -1608,7 +1612,7 @@ export default function App() {
 
   const handleSetProviderApiKey = async (providerId: string, apiKey: string): Promise<string | undefined> => {
     if (!api || !settingsWorkspace) {
-      return "Select a workspace first.";
+      return "请先选择工作区。";
     }
     const state = await updateSnapshot(api, setSnapshot, () =>
       api.setProviderApiKey(settingsWorkspace.id, providerId, apiKey),
@@ -1616,9 +1620,19 @@ export default function App() {
     return state.lastError;
   };
 
+  const handleSetProviderBaseUrl = async (providerId: string, baseUrl: string): Promise<string | undefined> => {
+    if (!api || !settingsWorkspace) {
+      return "请先选择工作区。";
+    }
+    const state = await updateSnapshot(api, setSnapshot, () =>
+      api.setProviderBaseUrl(settingsWorkspace.id, providerId, baseUrl),
+    );
+    return state.lastError;
+  };
+
   const handleRemoveProviderApiKey = async (providerId: string): Promise<string | undefined> => {
     if (!api || !settingsWorkspace) {
-      return "Select a workspace first.";
+      return "请先选择工作区。";
     }
     const state = await updateSnapshot(api, setSnapshot, () =>
       api.logoutProvider(settingsWorkspace.id, providerId),
@@ -1755,7 +1769,7 @@ export default function App() {
       return;
     }
     if (treeCommand?.type === "tree") {
-      setNewThreadComposerError("/tree is only available inside an existing session.");
+      setNewThreadComposerError("/tree 只能在已有会话中使用。");
       return;
     }
     const modelConfig = {
@@ -1873,11 +1887,11 @@ export default function App() {
   };
 
   const settingsNav = [
-    { id: "appearance", label: "Appearance" },
-    { id: "general", label: "General" },
-    { id: "providers", label: "Providers" },
-    { id: "models", label: "Models" },
-    { id: "notifications", label: "Notifications" },
+    { id: "appearance", label: "外观主题" },
+    { id: "general", label: "通用" },
+    { id: "providers", label: "模型配置" },
+    { id: "models", label: "模型选择" },
+    { id: "notifications", label: "通知" },
   ] as const;
 
   if (snapshot.activeView === "settings") {
@@ -1888,12 +1902,12 @@ export default function App() {
         onBack={() => setActiveView("threads")}
         onSelectNav={(section) => setSettingsSection(section as SettingsSection)}
         testId="settings-surface"
-        title="Settings"
+        title="设置"
       >
         {settingsSection === "providers" || (settingsSection === "models" && snapshot.modelSettingsScopeMode === "per-repo") ? (
           <div className="surface-toolbar">
             <label className="surface-toolbar__field">
-              <span>Workspace</span>
+              <span>工作区</span>
               <select
                 value={settingsWorkspace?.id ?? ""}
                 onChange={(event) => setSettingsWorkspaceId(event.target.value)}
@@ -1920,6 +1934,7 @@ export default function App() {
           onLoginProvider={handleLoginProvider}
           onLogoutProvider={handleLogoutProvider}
           onSetProviderApiKey={handleSetProviderApiKey}
+          onSetProviderBaseUrl={handleSetProviderBaseUrl}
           onRemoveProviderApiKey={handleRemoveProviderApiKey}
           onSetModelSettingsScopeMode={handleSetModelSettingsScopeMode}
           onSetDefaultModel={handleSetDefaultModel}
@@ -1936,71 +1951,12 @@ export default function App() {
     );
   }
 
-  if (snapshot.activeView === "data-import") {
-    return (
-      <DataImportView
-        sources={ontology.state.sources}
-        selectedSourceIds={ontology.state.selectedSourceIds}
-        onImportFiles={ontology.importFiles}
-        onConnectDatabase={ontology.connectDatabase}
-        onRemoveSource={ontology.removeSource}
-        onSelectSources={ontology.selectSources}
-        onSendToModeler={(ids) => {
-          ontology.sendToModeler(ids);
-          setActiveView("ontology-modeler");
-        }}
-      />
-    );
-  }
-
-  if (snapshot.activeView === "ontology-modeler") {
-    return (
-      <OntologyModelerView
-        classes={ontology.state.classes}
-        properties={ontology.state.properties}
-        stats={ontology.state.stats}
-        messages={ontology.state.messages}
-        sources={ontology.state.sources}
-        selectedSourceIds={ontology.state.selectedSourceIds}
-        phaseRuns={ontology.state.phaseRuns}
-        modelingStatus={ontology.state.modelingStatus}
-        activePhase={ontology.state.activePhase}
-        lastError={ontology.state.lastError}
-        isAgentRunning={ontology.state.isAgentRunning}
-        onSendMessage={ontology.sendMessage}
-        onRunPipeline={ontology.runPipeline}
-        onSelectClass={ontology.selectClass}
-        onCreateClass={ontology.createClass}
-        onDeleteClass={ontology.deleteClass}
-        onGoToImport={() => setActiveView("data-import")}
-        onGoToExport={() => setActiveView("owl-export")}
-      />
-    );
-  }
-
-  if (snapshot.activeView === "owl-export") {
-    return (
-      <OwlExportView
-        summary={ontology.state.exportSummary}
-        onExport={ontology.exportOntology}
-        onValidate={ontology.validateOntology}
-        onRunReasoner={ontology.runReasoner}
-        validationResult={ontology.state.validationResult}
-        isExporting={ontology.state.isExporting}
-        isValidating={ontology.state.isValidating}
-        isReasoning={ontology.state.isReasoning}
-        exportPreview={ontology.state.exportPreview}
-        onGoToModeler={() => setActiveView("ontology-modeler")}
-      />
-    );
-  }
-
   if (snapshot.activeView === "skills") {
     return (
-      <SecondarySurface onBack={() => setActiveView("threads")} testId="skills-surface" title="Skills">
+      <SecondarySurface onBack={() => setActiveView("threads")} testId="skills-surface" title="技能">
         <div className="surface-toolbar">
           <label className="surface-toolbar__field">
-            <span>Workspace</span>
+            <span>工作区</span>
             <select
               value={skillsWorkspace?.id ?? ""}
               onChange={(event) => setSkillsWorkspaceId(event.target.value)}
@@ -2028,7 +1984,7 @@ export default function App() {
             handleTrySkill(
               skill.filePath
                 ? `${skill.slashCommand} `
-                : "Create a new skill for this workspace and explain which files you will add.",
+                : "为此工作区创建一个新技能，并说明要添加哪些文件。",
             )
           }
         />
@@ -2038,10 +1994,10 @@ export default function App() {
 
   if (snapshot.activeView === "extensions") {
     return (
-      <SecondarySurface onBack={() => setActiveView("threads")} testId="extensions-surface" title="Extensions">
+      <SecondarySurface onBack={() => setActiveView("threads")} testId="extensions-surface" title="扩展">
         <div className="surface-toolbar">
           <label className="surface-toolbar__field">
-            <span>Workspace</span>
+            <span>工作区</span>
             <select
               value={extensionsWorkspace?.id ?? ""}
               onChange={(event) => setExtensionsWorkspaceId(event.target.value)}
@@ -2124,13 +2080,68 @@ export default function App() {
           onToggleTerminal={toggleTerminal}
           showDiffPanel={showDiffPanel}
           onToggleDiffPanel={toggleDiffPanel}
+          themeMode={themeMode}
+          onOpenThreads={() => setActiveView("threads")}
+          onOpenDataImport={() => setActiveView("data-import")}
+          onOpenOntologyModeler={() => setActiveView("ontology-modeler")}
+          onOpenOwlExport={() => setActiveView("owl-export")}
+          onOpenModelSettings={() => openSettings(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id, "providers")}
+          onCycleTheme={cycleThemeMode}
         />
 
         {showTerminalTakeover ? (
           terminalPanel
         ) : (
           <>
-        {snapshot.activeView === "new-thread" ? (
+        {snapshot.activeView === "data-import" ? (
+          <DataImportView
+            sources={ontology.state.sources}
+            selectedSourceIds={ontology.state.selectedSourceIds}
+            onImportFiles={ontology.importFiles}
+            onConnectDatabase={ontology.connectDatabase}
+            onRemoveSource={ontology.removeSource}
+            onSelectSources={ontology.selectSources}
+            onSendToModeler={(ids) => {
+              ontology.sendToModeler(ids);
+              setActiveView("ontology-modeler");
+            }}
+          />
+        ) : snapshot.activeView === "ontology-modeler" ? (
+          <OntologyModelerView
+            classes={ontology.state.classes}
+            properties={ontology.state.properties}
+            stats={ontology.state.stats}
+            messages={ontology.state.messages}
+            sources={ontology.state.sources}
+            selectedSourceIds={ontology.state.selectedSourceIds}
+            phaseRuns={ontology.state.phaseRuns}
+            modelingStatus={ontology.state.modelingStatus}
+            activePhase={ontology.state.activePhase}
+            lastError={ontology.state.lastError}
+            isAgentRunning={ontology.state.isAgentRunning}
+            onSendMessage={ontology.sendMessage}
+            onRunPipeline={ontology.runPipeline}
+            onSelectClass={ontology.selectClass}
+            onCreateClass={ontology.createClass}
+            onDeleteClass={ontology.deleteClass}
+            onGoToImport={() => setActiveView("data-import")}
+            onGoToExport={() => setActiveView("owl-export")}
+            onOpenModelSettings={() => openSettings(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id, "providers")}
+          />
+        ) : snapshot.activeView === "owl-export" ? (
+          <OwlExportView
+            summary={ontology.state.exportSummary}
+            onExport={ontology.exportOntology}
+            onValidate={ontology.validateOntology}
+            onRunReasoner={ontology.runReasoner}
+            validationResult={ontology.state.validationResult}
+            isExporting={ontology.state.isExporting}
+            isValidating={ontology.state.isValidating}
+            isReasoning={ontology.state.isReasoning}
+            exportPreview={ontology.state.exportPreview}
+            onGoToModeler={() => setActiveView("ontology-modeler")}
+          />
+        ) : snapshot.activeView === "new-thread" ? (
           rootWorkspaceOptions.length > 0 ? (
             <NewThreadView
               workspaces={rootWorkspaceOptions}
@@ -2181,9 +2192,9 @@ export default function App() {
           ) : (
             <section className="canvas canvas--empty">
               <div className="empty-panel">
-                <div className="session-header__eyebrow">Workspace</div>
-                <h1>Open a folder to start</h1>
-                <p>Add a project folder before creating a new thread.</p>
+                <div className="session-header__eyebrow">工作区</div>
+                <h1>打开文件夹开始</h1>
+                <p>先添加项目文件夹，再创建新会话。</p>
               </div>
             </section>
           )
@@ -2195,7 +2206,7 @@ export default function App() {
                   <div className="chat-header__eyebrow">
                     {selectedWorkspace.kind === "worktree"
                       ? `${rootWorkspace?.name ?? selectedWorkspace.name} · ${selectedWorktree?.name ?? selectedWorkspace.branchName ?? "Worktree"}`
-                      : `${selectedWorkspace.name} · Local`}
+                      : `${selectedWorkspace.name} · 本地`}
                   </div>
                   <div className="chat-header__row">
                     <h1 className="chat-header__title">{displayedSessionTitle}</h1>
@@ -2293,16 +2304,16 @@ export default function App() {
         ) : selectedWorkspace ? (
           <section className="canvas canvas--empty">
             <div className="empty-panel">
-              <div className="session-header__eyebrow">Workspace</div>
+              <div className="session-header__eyebrow">工作区</div>
               <h1>{selectedWorkspace.name}</h1>
-              <p>Create a thread for this folder, then jump between sessions from the sidebar.</p>
+              <p>为这个文件夹创建会话，然后从侧边栏切换不同会话。</p>
               <div className="empty-panel__actions">
                 <button
                   className="button button--primary"
                   type="button"
                   onClick={() => openNewThreadSurface(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
                 >
-                  New thread
+                  新建会话
                 </button>
               </div>
             </div>
@@ -2310,9 +2321,9 @@ export default function App() {
         ) : (
           <section className="canvas canvas--empty">
             <div className="empty-panel">
-              <div className="session-header__eyebrow">Workspace</div>
-              <h1>Open a folder to start</h1>
-              <p>Add project folders, group sessions under them, and jump between threads from the sidebar.</p>
+              <div className="session-header__eyebrow">工作区</div>
+              <h1>打开文件夹开始</h1>
+              <p>添加项目文件夹后，可以按文件夹组织会话，并从侧边栏切换。</p>
             </div>
           </section>
         )}

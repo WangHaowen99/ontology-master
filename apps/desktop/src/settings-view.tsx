@@ -28,6 +28,7 @@ interface SettingsViewProps {
   readonly onLoginProvider: (providerId: string) => void;
   readonly onLogoutProvider: (providerId: string) => void;
   readonly onSetProviderApiKey: (providerId: string, apiKey: string) => Promise<string | undefined>;
+  readonly onSetProviderBaseUrl: (providerId: string, baseUrl: string) => Promise<string | undefined>;
   readonly onRemoveProviderApiKey: (providerId: string) => Promise<string | undefined>;
   readonly onSetNotificationPreferences: (preferences: Partial<NotificationPreferences>) => void;
   readonly onSetIntegratedTerminalShell: (shellPath: string) => void;
@@ -54,6 +55,7 @@ export function SettingsView({
   onLoginProvider,
   onLogoutProvider,
   onSetProviderApiKey,
+  onSetProviderBaseUrl,
   onRemoveProviderApiKey,
   onSetNotificationPreferences,
   onSetIntegratedTerminalShell,
@@ -65,9 +67,9 @@ export function SettingsView({
     return (
       <section className="canvas canvas--empty">
         <div className="empty-panel">
-          <div className="session-header__eyebrow">Settings</div>
-          <h1>Select a workspace</h1>
-          <p>Provider and skill settings need a selected workspace.</p>
+          <div className="session-header__eyebrow">设置</div>
+          <h1>请选择工作区</h1>
+          <p>模型服务商和技能设置需要先选择一个工作区。</p>
         </div>
       </section>
     );
@@ -78,7 +80,7 @@ export function SettingsView({
       <div className="conversation settings-view">
         <header className="view-header">
           <div>
-            <div className="chat-header__eyebrow">Settings</div>
+            <div className="chat-header__eyebrow">设置</div>
             <h1 className="view-header__title">{sectionTitle(section)}</h1>
             <p className="view-header__body">
               {sectionDescription(section, workspace?.name ?? "this workspace")}
@@ -111,6 +113,7 @@ export function SettingsView({
               onLoginProvider={onLoginProvider}
               onLogoutProvider={onLogoutProvider}
               onSetProviderApiKey={onSetProviderApiKey}
+              onSetProviderBaseUrl={onSetProviderBaseUrl}
               onRemoveProviderApiKey={onRemoveProviderApiKey}
             />
           ) : null}

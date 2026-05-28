@@ -10,7 +10,7 @@ import {
   stubNextOpenDialog,
 } from "../helpers/electron-app";
 
-test("settings lets the user save an API key for a built-in provider", async () => {
+test("settings lets the user save an API Key for a built-in provider", async () => {
   test.setTimeout(60_000);
   const userDataDir = await makeUserDataDir();
   const agentDir = join(userDataDir, "agent");
@@ -32,35 +32,34 @@ test("settings lets the user save an API key for a built-in provider", async () 
     const window = await harness.firstWindow();
     await window.keyboard.press(desktopShortcut(","));
     await expect(window.getByTestId("settings-surface")).toBeVisible();
-    await window.getByRole("button", { name: "Providers", exact: true }).click();
-    await expect(window.locator(".view-header__title")).toHaveText("Providers");
+    await window.getByRole("button", { name: "模型配置", exact: true }).click();
+    await expect(window.locator(".view-header__title")).toHaveText("模型配置");
 
     const allProviders = window.locator(".settings-section", {
-      has: window.locator(".settings-section__title", { hasText: "All providers" }),
+      has: window.locator(".settings-section__title", { hasText: "全部服务商" }),
     });
-    await allProviders.locator(".settings-disclosure__summary").click();
     const openAiRow = allProviders.locator(".settings-row", {
       has: window.locator(".settings-row__title", { hasText: /^openai$/ }),
     });
-    await expect(openAiRow).toContainText("API key");
-    await openAiRow.getByRole("button", { name: "Set API key" }).click();
+    await expect(openAiRow).toContainText("API Key");
+    await openAiRow.getByRole("button", { name: "设置 API Key" }).click();
 
     const dialog = window.getByTestId("provider-api-key-dialog");
     await expect(dialog).toBeVisible();
-    await dialog.getByLabel("openai API key").fill("test-openai-key");
-    await dialog.getByRole("button", { name: "Set API key" }).click();
+    await dialog.getByLabel("openai API Key").fill("test-openai-key");
+    await dialog.getByRole("button", { name: "保存配置" }).click();
     await expect(dialog).toHaveCount(0);
 
     const connectedProviders = window.locator(".settings-section", {
-      has: window.locator(".settings-section__title", { hasText: "Connected" }),
+      has: window.locator(".settings-section__title", { hasText: "已连接" }),
     });
     await expect(connectedProviders).toContainText("openai");
-    await expect(connectedProviders).toContainText("API key");
-    await expect(connectedProviders.getByRole("button", { name: "Manage" })).toBeVisible();
+    await expect(connectedProviders).toContainText("API Key");
+    await expect(connectedProviders.getByRole("button", { name: "管理" })).toBeVisible();
 
-    await window.getByRole("button", { name: "Models", exact: true }).click();
+    await window.getByRole("button", { name: "模型选择", exact: true }).click();
     const enabledModels = window.locator(".settings-section", {
-      has: window.locator(".settings-section__title", { hasText: "Enabled models" }),
+      has: window.locator(".settings-section__title", { hasText: "启用的模型" }),
     });
     await expect(enabledModels).toContainText("openai/gpt-5");
     await expect(enabledModels).toContainText("openai/gpt-4o");
@@ -93,17 +92,17 @@ test("settings shows environment-configured providers as managed externally", as
     const window = await harness.firstWindow();
     await window.keyboard.press(desktopShortcut(","));
     await expect(window.getByTestId("settings-surface")).toBeVisible();
-    await window.getByRole("button", { name: "Providers", exact: true }).click();
-    await expect(window.locator(".view-header__title")).toHaveText("Providers");
+    await window.getByRole("button", { name: "模型配置", exact: true }).click();
+    await expect(window.locator(".view-header__title")).toHaveText("模型配置");
 
     const connectedProviders = window.locator(".settings-section", {
-      has: window.locator(".settings-section__title", { hasText: "Connected" }),
+      has: window.locator(".settings-section__title", { hasText: "已连接" }),
     });
     const openAiRow = connectedProviders.locator(".settings-row", {
       has: window.locator(".settings-row__title", { hasText: /^openai$/ }),
     });
-    await expect(openAiRow).toContainText("Environment variable");
-    await expect(openAiRow.getByRole("button", { name: "Managed externally" })).toBeDisabled();
+    await expect(openAiRow).toContainText("环境变量");
+    await expect(openAiRow.getByRole("button", { name: "由外部管理" })).toBeDisabled();
   } finally {
     await harness.close();
     if (previousOpenAiKey === undefined) {
@@ -152,17 +151,17 @@ test("settings keeps models.json provider overrides in the external-config state
     const window = await harness.firstWindow();
     await window.keyboard.press(desktopShortcut(","));
     await expect(window.getByTestId("settings-surface")).toBeVisible();
-    await window.getByRole("button", { name: "Providers", exact: true }).click();
-    await expect(window.locator(".view-header__title")).toHaveText("Providers");
+    await window.getByRole("button", { name: "模型配置", exact: true }).click();
+    await expect(window.locator(".view-header__title")).toHaveText("模型配置");
 
     const connectedProviders = window.locator(".settings-section", {
-      has: window.locator(".settings-section__title", { hasText: "Connected" }),
+      has: window.locator(".settings-section__title", { hasText: "已连接" }),
     });
     const openAiRow = connectedProviders.locator(".settings-row", {
       has: window.locator(".settings-row__title", { hasText: /^openai$/ }),
     });
-    await expect(openAiRow).toContainText("Configured externally");
-    await expect(openAiRow.getByRole("button", { name: "Managed externally" })).toBeDisabled();
+    await expect(openAiRow).toContainText("外部配置");
+    await expect(openAiRow.getByRole("button", { name: "由外部管理" })).toBeDisabled();
   } finally {
     await harness.close();
   }
@@ -189,7 +188,7 @@ test("opening the first workspace from the empty state hydrates provider and mod
     await expect(emptyState).toBeVisible();
 
     await stubNextOpenDialog(harness, [workspacePath]);
-    await emptyState.getByRole("button", { name: "Open first folder" }).click();
+    await emptyState.getByRole("button", { name: "打开第一个文件夹" }).click();
 
     await expect(emptyState).toHaveCount(0);
     await expect(window.getByTestId("workspace-list")).toContainText("provider-settings-first-workspace");
@@ -200,20 +199,20 @@ test("opening the first workspace from the empty state hydrates provider and mod
     await expect(settingsSurface).toBeVisible();
     await expect(settingsSurface.getByRole("button", { name: "Refresh", exact: true })).toHaveCount(0);
 
-    await window.getByRole("button", { name: "Providers", exact: true }).click();
-    await expect(window.locator(".view-header__title")).toHaveText("Providers");
+    await window.getByRole("button", { name: "模型配置", exact: true }).click();
+    await expect(window.locator(".view-header__title")).toHaveText("模型配置");
 
     const connectedProviders = window.locator(".settings-section", {
-      has: window.locator(".settings-section__title", { hasText: "Connected" }),
+      has: window.locator(".settings-section__title", { hasText: "已连接" }),
     });
     await expect(connectedProviders).toContainText("openai");
-    await expect(connectedProviders).toContainText("API key");
+    await expect(connectedProviders).toContainText("API Key");
 
-    await window.getByRole("button", { name: "Models", exact: true }).click();
-    await expect(window.locator(".view-header__title")).toHaveText("Models");
+    await window.getByRole("button", { name: "模型选择", exact: true }).click();
+    await expect(window.locator(".view-header__title")).toHaveText("模型选择");
 
     const enabledModels = window.locator(".settings-section", {
-      has: window.locator(".settings-section__title", { hasText: "Enabled models" }),
+      has: window.locator(".settings-section__title", { hasText: "启用的模型" }),
     });
     await expect(enabledModels).toContainText("openai/gpt-5");
     await expect(enabledModels).toContainText("openai/gpt-4o");

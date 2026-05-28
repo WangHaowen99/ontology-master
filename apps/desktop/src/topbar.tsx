@@ -1,6 +1,15 @@
 import type { MouseEvent as ReactMouseEvent, Dispatch, SetStateAction } from "react";
 import type { AppView, DesktopAppState, SessionRecord, WorkspaceRecord, WorktreeRecord } from "./desktop-state";
-import { DiffIcon, FolderIcon, TerminalIcon } from "./icons";
+import {
+  DataImportIcon,
+  DiffIcon,
+  FolderIcon,
+  OntologyModelerIcon,
+  OwlExportIcon,
+  PiLogoMark,
+  SettingsIcon,
+  TerminalIcon,
+} from "./icons";
 import { getDesktopShortcutLabel, type PiDesktopApi } from "./ipc";
 import type { WorkspaceMenuState } from "./hooks/use-workspace-menu";
 
@@ -26,6 +35,13 @@ interface TopbarProps {
   readonly onToggleTerminal: () => void;
   readonly showDiffPanel: boolean;
   readonly onToggleDiffPanel: () => void;
+  readonly themeMode: "system" | "light" | "dark";
+  readonly onOpenThreads: () => void;
+  readonly onOpenDataImport: () => void;
+  readonly onOpenOntologyModeler: () => void;
+  readonly onOpenOwlExport: () => void;
+  readonly onOpenModelSettings: () => void;
+  readonly onCycleTheme: () => void;
 }
 
 export function Topbar(props: TopbarProps) {
@@ -47,9 +63,17 @@ export function Topbar(props: TopbarProps) {
     onToggleTerminal,
     showDiffPanel,
     onToggleDiffPanel,
+    themeMode,
+    onOpenThreads,
+    onOpenDataImport,
+    onOpenOntologyModeler,
+    onOpenOwlExport,
+    onOpenModelSettings,
+    onCycleTheme,
   } = props;
   const terminalShortcut = getDesktopShortcutLabel(api.platform, "J");
   const diffShortcut = getDesktopShortcutLabel(api.platform, "D");
+  const themeLabel = themeMode === "dark" ? "深色" : themeMode === "light" ? "浅色" : "跟随系统";
 
   const handleDoubleClick = (event: ReactMouseEvent<HTMLElement>) => {
     const target = event.target;
@@ -66,9 +90,57 @@ export function Topbar(props: TopbarProps) {
 
   return (
     <header className="topbar" data-testid="topbar" onDoubleClick={handleDoubleClick}>
+      <div className="topbar__left">
+        <div className="topbar__brand" aria-label="本体大师">
+          <PiLogoMark />
+        </div>
+        <nav className="topbar__menu" data-testid="app-menu" aria-label="主菜单">
+          <button
+            className={`topbar__menu-item ${activeView === "threads" || activeView === "new-thread" ? "topbar__menu-item--active" : ""}`}
+            type="button"
+            onClick={onOpenThreads}
+          >
+            <FolderIcon />
+            <span>会话</span>
+          </button>
+          <button
+            className={`topbar__menu-item ${activeView === "data-import" ? "topbar__menu-item--active" : ""}`}
+            type="button"
+            onClick={onOpenDataImport}
+          >
+            <DataImportIcon />
+            <span>数据导入</span>
+          </button>
+          <button
+            className={`topbar__menu-item ${activeView === "ontology-modeler" ? "topbar__menu-item--active" : ""}`}
+            type="button"
+            onClick={onOpenOntologyModeler}
+          >
+            <OntologyModelerIcon />
+            <span>本体建模</span>
+          </button>
+          <button
+            className={`topbar__menu-item ${activeView === "owl-export" ? "topbar__menu-item--active" : ""}`}
+            type="button"
+            onClick={onOpenOwlExport}
+          >
+            <OwlExportIcon />
+            <span>OWL 导出</span>
+          </button>
+          <button className="topbar__menu-item" type="button" onClick={onOpenModelSettings}>
+            <SettingsIcon />
+            <span>模型配置</span>
+          </button>
+          <button className="topbar__menu-item" type="button" title={`当前主题：${themeLabel}`} onClick={onCycleTheme}>
+            <span className="topbar__menu-dot" aria-hidden="true" />
+            <span>主题</span>
+          </button>
+        </nav>
+      </div>
+
       <div className="topbar__title">
         <span className="topbar__workspace">
-          {rootWorkspace ? rootWorkspace.name : "Open a folder to begin"}
+          {rootWorkspace ? rootWorkspace.name : "打开文件夹开始"}
         </span>
         {selectedWorkspace && activeView === "threads" ? (
           <>
@@ -81,7 +153,7 @@ export function Topbar(props: TopbarProps) {
                 type="button"
                 onClick={() => wsMenu.setEnvironmentMenuOpen((current) => !current)}
               >
-                {selectedWorkspace.kind === "worktree" ? selectedWorktree?.name ?? selectedWorkspace.name : "Local"}
+                {selectedWorkspace.kind === "worktree" ? selectedWorktree?.name ?? selectedWorkspace.name : "本地"}
               </button>
               {wsMenu.environmentMenuOpen && rootWorkspace ? (
                 <div className="workspace-menu environment-picker__menu">
@@ -90,7 +162,7 @@ export function Topbar(props: TopbarProps) {
                     type="button"
                     onClick={() => wsMenu.selectWorkspace(rootWorkspace.id)}
                   >
-                    Local
+                    本地
                   </button>
                   {activeWorktrees.map((worktree) => {
                     const linkedWorkspace = workspaces.find(
@@ -110,7 +182,7 @@ export function Topbar(props: TopbarProps) {
                         }}
                       >
                         {worktree.name}
-                        {!worktreeSelectable ? ` (${worktree.status !== "ready" ? worktree.status : "unavailable"})` : ""}
+                        {!worktreeSelectable ? `（${worktree.status !== "ready" ? worktree.status : "不可用"}）` : ""}
                       </button>
                     );
                   })}
@@ -127,7 +199,7 @@ export function Topbar(props: TopbarProps) {
         ) : activeView === "new-thread" && rootWorkspace ? (
           <>
             <span className="topbar__separator">/</span>
-            <span className="topbar__session">New thread</span>
+            <span className="topbar__session">新建会话</span>
           </>
         ) : null}
       </div>
@@ -135,7 +207,7 @@ export function Topbar(props: TopbarProps) {
       <div className="topbar__actions">
         <div className="shortcut-tooltip-wrap topbar__tooltip-wrap">
           <button
-            aria-label="Toggle terminal"
+            aria-label="切换终端"
             className={`icon-button topbar__icon ${terminalVisible ? "icon-button--active" : ""}`}
             type="button"
             disabled={!terminalAvailable}
@@ -144,13 +216,13 @@ export function Topbar(props: TopbarProps) {
             <TerminalIcon />
           </button>
           <span className="shortcut-tooltip topbar__tooltip" role="tooltip">
-            <span>Toggle terminal</span>
+            <span>切换终端</span>
             <kbd>{terminalShortcut}</kbd>
           </span>
         </div>
         <div className="shortcut-tooltip-wrap topbar__tooltip-wrap">
           <button
-            aria-label="Toggle changes"
+            aria-label="切换变更"
             className={`icon-button topbar__icon ${showDiffPanel ? "icon-button--active" : ""}`}
             type="button"
             onClick={onToggleDiffPanel}
@@ -158,12 +230,12 @@ export function Topbar(props: TopbarProps) {
             <DiffIcon />
           </button>
           <span className="shortcut-tooltip topbar__tooltip" role="tooltip">
-            <span>Toggle changes</span>
+            <span>切换变更</span>
             <kbd>{diffShortcut}</kbd>
           </span>
         </div>
         <button
-          aria-label="Add folder"
+          aria-label="添加文件夹"
           className="icon-button topbar__icon"
           type="button"
           onClick={() => {

@@ -15,39 +15,44 @@ export function settingsPill(active: boolean): string {
 }
 
 export function labelForThinking(level: NonNullable<RuntimeSettingsSnapshot["defaultThinkingLevel"]>): string {
-  if (level === "xhigh") {
-    return "Extra High";
-  }
-  return level.charAt(0).toUpperCase() + level.slice(1);
+  const labels: Record<NonNullable<RuntimeSettingsSnapshot["defaultThinkingLevel"]>, string> = {
+    off: "关闭",
+    minimal: "极低",
+    low: "低",
+    medium: "中",
+    high: "高",
+    xhigh: "超高",
+  };
+  return labels[level];
 }
 
 export function sectionTitle(section: SettingsSection): string {
   switch (section) {
     case "appearance":
-      return "Appearance";
+      return "外观主题";
     case "providers":
-      return "Providers";
+      return "模型配置";
     case "models":
-      return "Models";
+      return "模型选择";
     case "notifications":
-      return "Notifications";
+      return "通知";
     default:
-      return "General";
+      return "通用";
   }
 }
 
 export function sectionDescription(section: SettingsSection, workspaceName: string): string {
   switch (section) {
     case "appearance":
-      return "Choose between light, dark, or automatic system theme.";
+      return "选择浅色、深色或跟随系统的界面主题。";
     case "providers":
-      return `Connect providers and manage auth for ${workspaceName}.`;
+      return `为 ${workspaceName} 配置模型服务商、API Key 和 Base URL。`;
     case "models":
-      return "Choose the default model and which models appear in pickers.";
+      return "选择默认模型，并控制哪些模型出现在选择器中。";
     case "notifications":
-      return "Manage both macOS notification access and which background events should alert you.";
+      return "管理系统通知权限和后台事件提醒。";
     default:
-      return "Keep the high-value app and runtime controls close to hand.";
+      return "管理应用范围、技能命令和终端等常用设置。";
   }
 }
 
@@ -167,21 +172,21 @@ export function ProviderRow({
 function describeProviderStatus(provider: RuntimeSnapshot["providers"][number]): string {
   switch (provider.authSource) {
     case "oauth":
-      return "OAuth · connected";
+      return "OAuth · 已连接";
     case "auth_file":
-      return "API key · connected";
+      return provider.baseUrl ? `API Key · 已连接 · ${provider.baseUrl}` : "API Key · 已连接";
     case "env":
-      return "Environment variable · connected";
+      return "环境变量 · 已连接";
     case "external":
-      return provider.hasAuth ? "Configured externally · connected" : "Configure externally";
+      return provider.hasAuth ? "外部配置 · 已连接" : "需要外部配置";
     default:
       if (provider.oauthSupported) {
         return "OAuth";
       }
       if (provider.apiKeySetupSupported) {
-        return "API key";
+        return provider.baseUrl ? `API Key · ${provider.baseUrl}` : "API Key";
       }
-      return provider.authType === "api_key" ? "API key" : "Built in";
+      return provider.authType === "api_key" ? "API Key" : "内置";
   }
 }
 
@@ -198,7 +203,7 @@ function resolveProviderAction(
   if (provider.authSource === "oauth") {
     return {
       disabled: false,
-      label: "Logout",
+      label: "退出登录",
       onClick: () => onLogoutProvider(provider.id),
     };
   }
@@ -206,7 +211,7 @@ function resolveProviderAction(
   if (provider.oauthSupported && provider.authSource === "none") {
     return {
       disabled: false,
-      label: "Login",
+      label: "登录",
       onClick: () => onLoginProvider(provider.id),
     };
   }
@@ -214,13 +219,13 @@ function resolveProviderAction(
   if (provider.apiKeySetupSupported && (provider.authSource === "none" || provider.authSource === "auth_file")) {
     return {
       disabled: false,
-      label: provider.authSource === "auth_file" ? "Manage" : "Set API key",
+      label: provider.authSource === "auth_file" ? "管理" : "设置 API Key",
       onClick: () => onConfigureApiKey(provider),
     };
   }
 
   return {
     disabled: true,
-    label: provider.authSource === "env" || provider.authSource === "external" ? "Managed externally" : "Configure externally",
+    label: provider.authSource === "env" || provider.authSource === "external" ? "由外部管理" : "外部配置",
   };
 }

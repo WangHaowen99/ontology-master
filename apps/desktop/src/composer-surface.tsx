@@ -151,7 +151,7 @@ export function ComposerSurface({
     >
       {isDragActive ? (
         <div className="composer__drop-indicator" data-testid="composer-drop-indicator">
-          Drop images or files to attach
+          拖放图片或文件以添加附件
         </div>
       ) : null}
       {activeSlashCommand ? (
@@ -166,7 +166,7 @@ export function ComposerSurface({
             ) : null}
           </span>
           <button
-            aria-label={`Clear ${activeSlashCommand.title}`}
+            aria-label={`清除 ${activeSlashCommand.title}`}
             className="composer__slash-intent-clear"
             type="button"
             onClick={onClearSlashCommand}
@@ -200,7 +200,7 @@ export function ComposerSurface({
               )}
               <span className="composer-attachment__name">{attachment.name}</span>
               <button
-                aria-label={`Remove ${attachment.name}`}
+                aria-label={`移除 ${attachment.name}`}
                 className="composer-attachment__remove"
                 type="button"
                 onClick={() => onRemoveAttachment(attachment.id)}
@@ -273,7 +273,7 @@ export function ComposerSurface({
                               <span className="slash-menu__title">{command.title}</span>
                               {command.sourceLabel ? <span className="slash-menu__skill-badge">{command.sourceLabel}</span> : null}
                               {command.compatibility?.status === "terminal-only" ? (
-                                <span className="slash-menu__skill-badge slash-menu__skill-badge--warning">Terminal-only</span>
+                                <span className="slash-menu__skill-badge slash-menu__skill-badge--warning">仅终端</span>
                               ) : null}
                             </span>
                             <span className="slash-menu__description">{command.description}</span>

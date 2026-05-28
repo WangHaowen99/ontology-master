@@ -405,7 +405,7 @@ export async function setSessionModel(
   return store.withErrorHandling(async () => {
     await store.driver.setSessionModel(sessionRef, { provider, modelId });
     syncSessionConfig(store, key, { provider, modelId });
-    return finishComposerCommand(store, sessionRef, key, `Model set to ${provider}:${modelId}`);
+    return finishComposerCommand(store, sessionRef, key, `模型已设为 ${provider}:${modelId}`);
   });
 }
 
@@ -419,7 +419,7 @@ export async function setSessionThinkingLevel(
   return store.withErrorHandling(async () => {
     await store.driver.setSessionThinkingLevel(sessionRef, thinkingLevel);
     syncSessionConfig(store, key, { thinkingLevel });
-    return finishComposerCommand(store, sessionRef, key, `Thinking set to ${thinkingLevel}`);
+    return finishComposerCommand(store, sessionRef, key, `推理强度已设为 ${thinkingLevel}`);
   });
 }
 
@@ -560,13 +560,13 @@ async function runComposerCommand(
       modelId: parsed.modelId,
     });
     syncSessionConfig(store, key, { provider: parsed.provider, modelId: parsed.modelId });
-    return finishComposerCommand(store, sessionRef, key, `Model set to ${parsed.provider}:${parsed.modelId}`);
+    return finishComposerCommand(store, sessionRef, key, `模型已设为 ${parsed.provider}:${parsed.modelId}`);
   }
 
   if (parsed.type === "thinking") {
     await store.driver.setSessionThinkingLevel(sessionRef, parsed.thinkingLevel);
     syncSessionConfig(store, key, { thinkingLevel: parsed.thinkingLevel });
-    return finishComposerCommand(store, sessionRef, key, `Thinking set to ${parsed.thinkingLevel}`);
+    return finishComposerCommand(store, sessionRef, key, `推理强度已设为 ${parsed.thinkingLevel}`);
   }
 
   if (parsed.type === "status") {
@@ -582,10 +582,10 @@ async function runComposerCommand(
     const workspace = store.state.workspaces.find((entry) => entry.id === sessionRef.workspaceId);
     const session = workspace?.sessions.find((entry) => entry.id === sessionRef.sessionId);
     const parts = [
-      `Session ${session?.title ?? sessionRef.sessionId}`,
+      `会话 ${session?.title ?? sessionRef.sessionId}`,
       `ID ${sessionRef.sessionId}`,
-      workspace ? `Workspace ${workspace.name}` : undefined,
-      session ? `Status ${session.status}` : undefined,
+      workspace ? `工作区 ${workspace.name}` : undefined,
+      session ? `状态 ${session.status}` : undefined,
     ].filter(Boolean);
     return finishComposerCommand(store, sessionRef, key, parts.join(" · "));
   }
@@ -593,23 +593,23 @@ async function runComposerCommand(
   if (parsed.type === "name") {
     store.clearPendingAutoTitle(sessionRef);
     await store.driver.renameSession(sessionRef, parsed.title);
-    return finishComposerCommand(store, sessionRef, key, `Session renamed to ${parsed.title}`);
+    return finishComposerCommand(store, sessionRef, key, `会话已重命名为 ${parsed.title}`);
   }
 
   if (parsed.type === "compact") {
     await store.driver.compactSession(sessionRef, parsed.customInstructions);
     await store.reloadTranscriptFromDriver(sessionRef);
-    return finishComposerCommand(store, sessionRef, key, "Compacted session context");
+    return finishComposerCommand(store, sessionRef, key, "已压缩会话上下文");
   }
 
   if (parsed.type === "reload") {
     store.clearExtensionUiForSession(sessionRef);
     await store.driver.reloadSession(sessionRef);
     await store.refreshSessionCommandsFor(sessionRef);
-    return finishComposerCommand(store, sessionRef, key, "Reloaded session resources");
+    return finishComposerCommand(store, sessionRef, key, "已重新加载会话资源");
   }
 
-  return store.withError(`Unsupported slash command: ${commandText}`);
+  return store.withError(`不支持的斜杠命令：${commandText}`);
 }
 
 function appendLocalActivity(store: AppStoreInternals, sessionRef: SessionRef, label: string): void {

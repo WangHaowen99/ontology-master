@@ -7,14 +7,14 @@ interface SettingsAppearanceSectionProps {
 }
 
 const THEME_OPTIONS: { mode: ThemeMode; label: string; description: string }[] = [
-  { mode: "system", label: "System", description: "Follow your OS appearance setting" },
-  { mode: "light", label: "Light", description: "Always use the light theme" },
-  { mode: "dark", label: "Dark", description: "Always use the dark theme" },
+  { mode: "system", label: "跟随系统", description: "自动跟随操作系统外观设置" },
+  { mode: "light", label: "浅色", description: "始终使用浅色主题" },
+  { mode: "dark", label: "深色", description: "始终使用深色主题" },
 ];
 
 export function SettingsAppearanceSection({ themeMode, onSetThemeMode }: SettingsAppearanceSectionProps) {
   return (
-    <SettingsGroup title="Theme">
+    <SettingsGroup title="主题">
       {THEME_OPTIONS.map((option) => (
         <SettingsRow key={option.mode} title={option.label} description={option.description}>
           <input
