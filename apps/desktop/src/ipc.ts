@@ -18,6 +18,12 @@ import type {
   StartThreadInput,
   WorkspaceSessionTarget,
 } from "./desktop-state";
+import type {
+  OntologyDatabaseConnectionInput,
+  OntologyExportFormat,
+  OntologyImportFileInput,
+  OntologyWorkbenchState,
+} from "./ontology-workbench-state";
 
 export type DesktopNotificationPermissionStatus =
   | "granted"
@@ -113,6 +119,7 @@ export const desktopIpc = {
   ontologyImportFiles: "om:import-files",
   ontologyConnectDatabase: "om:connect-database",
   ontologyRemoveSource: "om:remove-source",
+  ontologySelectSources: "om:select-sources",
   ontologyGetState: "om:get-state",
   ontologySendMessage: "om:send-message",
   ontologyRunPipeline: "om:run-pipeline",
@@ -137,6 +144,7 @@ export function getDesktopShortcutLabel(platform: NodeJS.Platform, key: string):
 
 export type PiDesktopStateListener = (state: DesktopAppState) => void;
 export type PiDesktopSelectedTranscriptListener = (payload: SelectedTranscriptRecord | null) => void;
+export type OntologyWorkbenchStateListener = (state: OntologyWorkbenchState) => void;
 export type PiDesktopCommand = (typeof desktopCommands)[keyof typeof desktopCommands];
 
 export interface TerminalSize {
@@ -225,6 +233,8 @@ export interface PiDesktopApi {
   ping(): Promise<string>;
   getState(): Promise<DesktopAppState>;
   onStateChanged(listener: PiDesktopStateListener): () => void;
+  getOntologyState(): Promise<OntologyWorkbenchState>;
+  onOntologyStateChanged(listener: OntologyWorkbenchStateListener): () => void;
   getSelectedTranscript(): Promise<SelectedTranscriptRecord | null>;
   onSelectedTranscriptChanged(listener: PiDesktopSelectedTranscriptListener): () => void;
   onCommand(listener: (command: PiDesktopCommand) => void): () => void;
@@ -338,6 +348,17 @@ export interface PiDesktopApi {
   stageFile(workspaceId: string, filePath: string): Promise<void>;
   toggleWindowMaximize(): Promise<void>;
   openExternal(url: string): Promise<void>;
+  ontologyImportFiles(files: readonly OntologyImportFileInput[]): Promise<OntologyWorkbenchState>;
+  ontologyConnectDatabase(input: OntologyDatabaseConnectionInput): Promise<OntologyWorkbenchState>;
+  ontologyRemoveSource(id: string): Promise<OntologyWorkbenchState>;
+  ontologySelectSources(ids: readonly string[]): Promise<OntologyWorkbenchState>;
+  ontologySendMessage(text: string): Promise<OntologyWorkbenchState>;
+  ontologyRunPipeline(requirement?: string): Promise<OntologyWorkbenchState>;
+  ontologyCreateClass(name: string, superClassName?: string): Promise<OntologyWorkbenchState>;
+  ontologyDeleteClass(iri: string): Promise<OntologyWorkbenchState>;
+  ontologyExport(format: OntologyExportFormat): Promise<OntologyWorkbenchState>;
+  ontologyValidate(): Promise<OntologyWorkbenchState>;
+  ontologyRunReasoner(): Promise<OntologyWorkbenchState>;
   getThemeMode(): Promise<"system" | "light" | "dark">;
   getResolvedTheme(): Promise<"light" | "dark">;
   setThemeMode(mode: "system" | "light" | "dark"): Promise<string>;

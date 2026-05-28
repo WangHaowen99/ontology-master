@@ -94,6 +94,7 @@ import * as workspace from "./app-store-workspace";
 import * as worktree from "./app-store-worktree";
 import * as composer from "./app-store-composer";
 import { isSessionActivelyViewed } from "./session-visibility";
+import { OntologyWorkbenchStore } from "./ontology-workbench-store";
 
 type StateListener = (state: DesktopAppState) => void;
 type SelectedTranscriptListener = (payload: SelectedTranscriptRecord | null) => void;
@@ -135,6 +136,7 @@ export class DesktopAppStore implements AppStoreInternals {
   readonly driver: PiSdkDriver;
   readonly catalogStore: JsonCatalogStore;
   readonly worktreeManager: GitWorktreeManager;
+  readonly ontologyWorkbench: OntologyWorkbenchStore;
   private readonly uiStateFilePath: string;
   private readonly transcriptStore: JsonFileStore<PersistedTranscriptStoreValue>;
   readonly attachmentStore: JsonFileStore<ComposerAttachment[]>;
@@ -163,6 +165,7 @@ export class DesktopAppStore implements AppStoreInternals {
     this.driver = new PiSdkDriver(driverOptions);
     this.catalogStore = new JsonCatalogStore({ catalogFilePath });
     this.worktreeManager = new GitWorktreeManager({ catalogStorage: this.catalogStore });
+    this.ontologyWorkbench = new OntologyWorkbenchStore(this);
     this.uiStateFilePath = join(options.userDataDir, "ui-state.json");
     this.transcriptStore = new JsonFileStore<PersistedTranscriptStoreValue>(options.userDataDir, "transcripts");
     this.attachmentStore = new JsonFileStore<ComposerAttachment[]>(options.userDataDir, "attachments");
@@ -1431,6 +1434,7 @@ export class DesktopAppStore implements AppStoreInternals {
     }
     const snapshot = this.emit();
     this.publishSelectedTranscriptFor(event.sessionRef);
+    await this.ontologyWorkbench.handleSessionEvent(event);
     await this.emitSessionEvent(event, snapshot);
   }
 

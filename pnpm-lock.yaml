@@ -60,6 +60,12 @@ importers:
       '@earendil-works/pi-coding-agent':
         specifier: ^0.74.0
         version: 0.74.2(ws@8.21.0)(zod@4.4.3)
+      '@om/modeler':
+        specifier: workspace:*
+        version: link:../../packages/modeler
+      '@om/ontology':
+        specifier: workspace:*
+        version: link:../../packages/ontology
       '@pi-gui/pi-sdk-driver':
         specifier: workspace:*
         version: link:../../packages/pi-sdk-driver

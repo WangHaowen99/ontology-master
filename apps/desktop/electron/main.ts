@@ -29,6 +29,11 @@ import type { DesktopAppState, ThemeMode } from "../src/desktop-state";
 import { desktopIpc, getDesktopCommandFromShortcut } from "../src/ipc";
 import { SUPPORTED_COMPOSER_IMAGE_TYPES } from "../src/composer-attachments";
 import type {
+  OntologyDatabaseConnectionInput,
+  OntologyExportFormat,
+  OntologyImportFileInput,
+} from "../src/ontology-workbench-state";
+import type {
   ComposerAttachment,
   ComposerFileAttachment,
   ComposerImageAttachment,
@@ -54,6 +59,7 @@ let terminalService: TerminalService | undefined;
 let integratedTerminalShell = "";
 let stopPublishingState: (() => void) | undefined;
 let stopPublishingSelectedTranscript: (() => void) | undefined;
+let stopPublishingOntologyState: (() => void) | undefined;
 let stopTrackingWindowActivation: (() => void) | undefined;
 let stopNotifications: (() => void) | undefined;
 let stopUpdateChecker: (() => void) | undefined;
@@ -198,6 +204,7 @@ function attachStatePublisher(window: BrowserWindow): void {
   const webContentsId = window.webContents.id;
   stopPublishingState?.();
   stopPublishingSelectedTranscript?.();
+  stopPublishingOntologyState?.();
   stopPublishingState = store.subscribe((state) => {
     if (canPublishToWindow(window)) {
       window.webContents.send(desktopIpc.stateChanged, state);
@@ -208,17 +215,26 @@ function attachStatePublisher(window: BrowserWindow): void {
       window.webContents.send(desktopIpc.selectedTranscriptChanged, payload);
     }
   });
+  stopPublishingOntologyState = store.ontologyWorkbench.subscribe((state) => {
+    if (canPublishToWindow(window)) {
+      window.webContents.send(desktopIpc.ontologyStateChanged, state);
+    }
+  });
   window.webContents.once("render-process-gone", () => {
     stopPublishingState?.();
     stopPublishingState = undefined;
     stopPublishingSelectedTranscript?.();
     stopPublishingSelectedTranscript = undefined;
+    stopPublishingOntologyState?.();
+    stopPublishingOntologyState = undefined;
   });
   window.once("closed", () => {
     stopPublishingState?.();
     stopPublishingState = undefined;
     stopPublishingSelectedTranscript?.();
     stopPublishingSelectedTranscript = undefined;
+    stopPublishingOntologyState?.();
+    stopPublishingOntologyState = undefined;
     if (mainWindow === window) {
       mainWindow = null;
     }
@@ -492,6 +508,36 @@ app.whenReady().then(async () => {
     return shell.openExternal(url);
   });
   ipcMain.handle(desktopIpc.stateRequest, () => store.getState());
+  ipcMain.handle(desktopIpc.ontologyGetState, () => store.ontologyWorkbench.getState());
+  ipcMain.handle(desktopIpc.ontologyImportFiles, (_event, files: readonly OntologyImportFileInput[]) =>
+    store.ontologyWorkbench.importFiles(files),
+  );
+  ipcMain.handle(desktopIpc.ontologyConnectDatabase, (_event, input: OntologyDatabaseConnectionInput) =>
+    store.ontologyWorkbench.connectDatabase(input),
+  );
+  ipcMain.handle(desktopIpc.ontologyRemoveSource, (_event, id: string) =>
+    store.ontologyWorkbench.removeSource(id),
+  );
+  ipcMain.handle(desktopIpc.ontologySelectSources, (_event, ids: readonly string[]) =>
+    store.ontologyWorkbench.selectSources(ids),
+  );
+  ipcMain.handle(desktopIpc.ontologySendMessage, (_event, text: string) =>
+    store.ontologyWorkbench.sendModelingMessage(text),
+  );
+  ipcMain.handle(desktopIpc.ontologyRunPipeline, (_event, requirement?: string) =>
+    store.ontologyWorkbench.startModeling(requirement),
+  );
+  ipcMain.handle(desktopIpc.ontologyCreateClass, (_event, name: string, superClassName?: string) =>
+    store.ontologyWorkbench.createClass(name, superClassName),
+  );
+  ipcMain.handle(desktopIpc.ontologyDeleteClass, (_event, iri: string) =>
+    store.ontologyWorkbench.deleteClass(iri),
+  );
+  ipcMain.handle(desktopIpc.ontologyExport, (_event, format: OntologyExportFormat) =>
+    store.ontologyWorkbench.export(format),
+  );
+  ipcMain.handle(desktopIpc.ontologyValidate, () => store.ontologyWorkbench.validate());
+  ipcMain.handle(desktopIpc.ontologyRunReasoner, () => store.ontologyWorkbench.runReasoner());
   ipcMain.handle(desktopIpc.selectedTranscriptRequest, () => store.getSelectedTranscript());
   ipcMain.handle(desktopIpc.addWorkspacePath, (_event, workspacePath: string) => store.addWorkspace(workspacePath));
   ipcMain.handle(desktopIpc.pickWorkspace, () => pickWorkspaceViaDialog());

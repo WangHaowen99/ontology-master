@@ -32,6 +32,12 @@ import type {
   StartThreadInput,
   WorkspaceSessionTarget,
 } from "../src/desktop-state";
+import type {
+  OntologyDatabaseConnectionInput,
+  OntologyExportFormat,
+  OntologyImportFileInput,
+  OntologyWorkbenchState,
+} from "../src/ontology-workbench-state";
 
 const devReloadMarkersEnabled = process.env.PI_APP_DEV_RELOAD_MARKERS === "1";
 
@@ -73,6 +79,9 @@ contextBridge.exposeInMainWorld("piApp", {
       ipcRenderer.removeListener(desktopIpc.stateChanged, handle);
     };
   },
+  getOntologyState: () => ipcRenderer.invoke(desktopIpc.ontologyGetState) as Promise<OntologyWorkbenchState>,
+  onOntologyStateChanged: (listener: (state: OntologyWorkbenchState) => void) =>
+    subscribeIpc(desktopIpc.ontologyStateChanged, listener),
   getSelectedTranscript: () =>
     ipcRenderer.invoke(desktopIpc.selectedTranscriptRequest) as Promise<SelectedTranscriptRecord | null>,
   onSelectedTranscriptChanged: (listener: (payload: SelectedTranscriptRecord | null) => void) => {
@@ -256,6 +265,26 @@ contextBridge.exposeInMainWorld("piApp", {
     ipcRenderer.invoke(desktopIpc.stageFile, workspaceId, filePath) as Promise<void>,
   toggleWindowMaximize: () => ipcRenderer.invoke(desktopIpc.toggleWindowMaximize) as Promise<void>,
   openExternal: (url: string) => ipcRenderer.invoke(desktopIpc.openExternal, url) as Promise<void>,
+  ontologyImportFiles: (files: readonly OntologyImportFileInput[]) =>
+    ipcRenderer.invoke(desktopIpc.ontologyImportFiles, files) as Promise<OntologyWorkbenchState>,
+  ontologyConnectDatabase: (input: OntologyDatabaseConnectionInput) =>
+    ipcRenderer.invoke(desktopIpc.ontologyConnectDatabase, input) as Promise<OntologyWorkbenchState>,
+  ontologyRemoveSource: (id: string) =>
+    ipcRenderer.invoke(desktopIpc.ontologyRemoveSource, id) as Promise<OntologyWorkbenchState>,
+  ontologySelectSources: (ids: readonly string[]) =>
+    ipcRenderer.invoke(desktopIpc.ontologySelectSources, ids) as Promise<OntologyWorkbenchState>,
+  ontologySendMessage: (text: string) =>
+    ipcRenderer.invoke(desktopIpc.ontologySendMessage, text) as Promise<OntologyWorkbenchState>,
+  ontologyRunPipeline: (requirement?: string) =>
+    ipcRenderer.invoke(desktopIpc.ontologyRunPipeline, requirement) as Promise<OntologyWorkbenchState>,
+  ontologyCreateClass: (name: string, superClassName?: string) =>
+    ipcRenderer.invoke(desktopIpc.ontologyCreateClass, name, superClassName) as Promise<OntologyWorkbenchState>,
+  ontologyDeleteClass: (iri: string) =>
+    ipcRenderer.invoke(desktopIpc.ontologyDeleteClass, iri) as Promise<OntologyWorkbenchState>,
+  ontologyExport: (format: OntologyExportFormat) =>
+    ipcRenderer.invoke(desktopIpc.ontologyExport, format) as Promise<OntologyWorkbenchState>,
+  ontologyValidate: () => ipcRenderer.invoke(desktopIpc.ontologyValidate) as Promise<OntologyWorkbenchState>,
+  ontologyRunReasoner: () => ipcRenderer.invoke(desktopIpc.ontologyRunReasoner) as Promise<OntologyWorkbenchState>,
   getThemeMode: () => ipcRenderer.invoke(desktopIpc.getThemeMode) as Promise<"system" | "light" | "dark">,
   getResolvedTheme: () => ipcRenderer.invoke(desktopIpc.getResolvedTheme) as Promise<"light" | "dark">,
   setThemeMode: (mode: "system" | "light" | "dark") =>
