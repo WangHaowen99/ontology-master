@@ -30,6 +30,10 @@ import { deriveModelOnboardingState } from "./model-onboarding";
 import { SkillsView } from "./skills-view";
 import { ExtensionsView } from "./extensions-view";
 import { SettingsView, type SettingsSection } from "./settings-view";
+import { DataImportView } from "./data-import-view";
+import { OntologyModelerView } from "./ontology-modeler-view";
+import { OwlExportView } from "./owl-export-view";
+import { useOntologyState } from "./hooks/use-ontology-state";
 import { SecondarySurface } from "./secondary-surface";
 import { NewThreadView } from "./new-thread-view";
 import { buildThreadGroups } from "./thread-groups";
@@ -151,6 +155,7 @@ function formatRunningLabel(startedAt: string | undefined): string {
 
 export default function App() {
   const [snapshot, setSnapshot, selectedTranscript] = useDesktopAppState();
+  const ontology = useOntologyState();
   const [composerDraft, setComposerDraft] = useState("");
   const [settingsSection, setSettingsSection] = useState<SettingsSection>("general");
   const [settingsWorkspaceId, setSettingsWorkspaceId] = useState("");
@@ -1928,6 +1933,53 @@ export default function App() {
           onToggleSkillCommands={handleToggleSkillCommands}
         />
       </SecondarySurface>
+    );
+  }
+
+  if (snapshot.activeView === "data-import") {
+    return (
+      <DataImportView
+        sources={ontology.state.sources}
+        onImportFiles={ontology.importFiles}
+        onConnectDatabase={ontology.connectDatabase}
+        onRemoveSource={ontology.removeSource}
+        onSendToModeler={() => {
+          setActiveView("ontology-modeler");
+        }}
+      />
+    );
+  }
+
+  if (snapshot.activeView === "ontology-modeler") {
+    return (
+      <OntologyModelerView
+        classes={ontology.state.classes}
+        properties={ontology.state.properties}
+        stats={ontology.state.stats}
+        messages={ontology.state.messages}
+        isAgentRunning={ontology.state.isAgentRunning}
+        onSendMessage={ontology.sendMessage}
+        onRunPipeline={ontology.runPipeline}
+        onSelectClass={ontology.selectClass}
+        onCreateClass={ontology.createClass}
+        onDeleteClass={ontology.deleteClass}
+      />
+    );
+  }
+
+  if (snapshot.activeView === "owl-export") {
+    return (
+      <OwlExportView
+        summary={ontology.state.exportSummary}
+        onExport={ontology.exportOntology}
+        onValidate={ontology.validateOntology}
+        onRunReasoner={ontology.runReasoner}
+        validationResult={ontology.state.validationResult}
+        isExporting={ontology.state.isExporting}
+        isValidating={ontology.state.isValidating}
+        isReasoning={ontology.state.isReasoning}
+        exportPreview={ontology.state.exportPreview}
+      />
     );
   }
 

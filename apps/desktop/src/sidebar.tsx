@@ -14,7 +14,7 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { AppView, SessionRecord, WorkspaceRecord, WorktreeRecord } from "./desktop-state";
-import { ArchiveIcon, ChevronDownIcon, ExtensionIcon, FolderIcon, PlusIcon, RestoreIcon, SettingsIcon, SkillIcon, WorktreeIcon } from "./icons";
+import { ArchiveIcon, ChevronDownIcon, DataImportIcon, ExtensionIcon, FolderIcon, OntologyModelerIcon, OwlExportIcon, PlusIcon, RestoreIcon, SettingsIcon, SkillIcon, WorktreeIcon } from "./icons";
 import type { PiDesktopApi } from "./ipc";
 import { formatRelativeTime } from "./string-utils";
 import type { WorkspaceMenuState } from "./hooks/use-workspace-menu";
@@ -138,6 +138,30 @@ export function Sidebar(props: SidebarProps) {
           >
             <FolderIcon />
             <span>Threads</span>
+          </button>
+          <button
+            className={`sidebar__nav-item ${activeView === "data-import" ? "sidebar__nav-item--active" : ""}`}
+            type="button"
+            onClick={() => onSetActiveView("data-import")}
+          >
+            <DataImportIcon />
+            <span>Import Data</span>
+          </button>
+          <button
+            className={`sidebar__nav-item ${activeView === "ontology-modeler" ? "sidebar__nav-item--active" : ""}`}
+            type="button"
+            onClick={() => onSetActiveView("ontology-modeler")}
+          >
+            <OntologyModelerIcon />
+            <span>Ontology Modeler</span>
+          </button>
+          <button
+            className={`sidebar__nav-item ${activeView === "owl-export" ? "sidebar__nav-item--active" : ""}`}
+            type="button"
+            onClick={() => onSetActiveView("owl-export")}
+          >
+            <OwlExportIcon />
+            <span>OWL Export</span>
           </button>
           <button
             className="sidebar__nav-item"

@@ -343,3 +343,32 @@ export function DiffIcon() {
     </Icon>
   );
 }
+
+export function OntologyModelerIcon() {
+  return (
+    <Icon>
+      <circle cx="10" cy="5" r="2" stroke="currentColor" strokeWidth="1.35" />
+      <circle cx="5.5" cy="14" r="2" stroke="currentColor" strokeWidth="1.35" />
+      <circle cx="14.5" cy="14" r="2" stroke="currentColor" strokeWidth="1.35" />
+      <path d="M8.8 6.7 6.5 12.3M11.2 6.7l2.3 5.6" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+    </Icon>
+  );
+}
+
+export function DataImportIcon() {
+  return (
+    <Icon>
+      <path d="M10 4v8m0 0-3-3m3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 14v1.5A1.5 1.5 0 0 0 5.5 17h9a1.5 1.5 0 0 0 1.5-1.5V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </Icon>
+  );
+}
+
+export function OwlExportIcon() {
+  return (
+    <Icon>
+      <path d="M10 12V4m0 0L7 7m3-3 3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 12v3.5A1.5 1.5 0 0 0 5.5 17h9a1.5 1.5 0 0 0 1.5-1.5V12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </Icon>
+  );
+}

@@ -109,6 +109,19 @@ export const desktopIpc = {
   themeChanged: "pi-gui:theme-changed",
   ping: "app:ping",
   openExternal: "app:open-external",
+  // Ontology workbench channels
+  ontologyImportFiles: "om:import-files",
+  ontologyConnectDatabase: "om:connect-database",
+  ontologyRemoveSource: "om:remove-source",
+  ontologyGetState: "om:get-state",
+  ontologySendMessage: "om:send-message",
+  ontologyRunPipeline: "om:run-pipeline",
+  ontologyCreateClass: "om:create-class",
+  ontologyDeleteClass: "om:delete-class",
+  ontologyExport: "om:export",
+  ontologyValidate: "om:validate",
+  ontologyRunReasoner: "om:run-reasoner",
+  ontologyStateChanged: "om:state-changed",
 } as const;
 
 export const desktopCommands = {
