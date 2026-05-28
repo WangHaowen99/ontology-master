@@ -15,6 +15,9 @@ export default defineConfig(({ command }) => {
     main: {
       plugins: [tsconfigPaths({ projects: [pathsProject] })],
       build: {
+        externalizeDeps: {
+          exclude: ["@om/modeler", "@om/ontology"],
+        },
         outDir: "out/main",
         emptyOutDir: cleanOutputs,
         rollupOptions: {

@@ -19,6 +19,7 @@ const desktopDir = resolve(__dirname, "..", "..");
 const packagedReleaseDir = join(desktopDir, "release");
 const nativeClipboardImagePath = resolve(__dirname, "..", "..", "..", "website", "public", "og.png");
 const execFileAsync = promisify(execFile);
+const rootElectronArgs = typeof process.getuid === "function" && process.getuid() === 0 ? ["--no-sandbox"] : [];
 const REAL_AUTH_ENV_VAR = "PI_APP_REAL_AUTH";
 const REAL_AUTH_SOURCE_DIR_ENV_VAR = "PI_APP_REAL_AUTH_SOURCE_DIR";
 const REQUIRED_REAL_AUTH_FILES = ["auth.json"] as const;
@@ -100,7 +101,7 @@ export async function launchDesktop(
   const agentDir = await prepareAgentDir(userDataDir, normalized);
   const env = buildDesktopLaunchEnv(userDataDir, agentDir, normalized);
   const electronApp = await electron.launch({
-    args: [desktopDir],
+    args: [...rootElectronArgs, desktopDir],
     cwd: desktopDir,
     env,
   });
@@ -137,7 +138,7 @@ async function launchDesktopExecutable(
 ): Promise<DesktopHarness> {
   const electronApp = await electron.launch({
     executablePath,
-    args: [],
+    args: rootElectronArgs,
     cwd: dirname(executablePath),
     env,
   });
